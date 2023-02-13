@@ -3,7 +3,7 @@ import os
 import sys
 os.chdir(os.path.abspath(os.path.dirname(__file__) + '/../..'))
 sys.path.append('.')
-from utils.mqtt import MQTT
+from common.mqtt import MQTT
 from config.mqtt_configuration import MqttConfiguration
 from config import CONFIG_DIR
 import time

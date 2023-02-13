@@ -3,6 +3,8 @@
 MQTT服务
 """
 from model.mqtt import MqttConfig
+from utils.log import Log
+from config import LOG_CONFIG
 from typing import Dict, Union
 from collections import defaultdict
 import json
@@ -19,6 +21,8 @@ class MQTT:
         阻塞获取mqtt服务
         :param mqtt_config: mqtt服务配置
         """
+        self.logger = Log('mqtt', **LOG_CONFIG)
+
         if mqtt_config is None:
             mqtt_config = MqttConfig()
         elif isinstance(mqtt_config, dict):
@@ -50,6 +54,7 @@ class MQTT:
             判断mqtt是否连接成功
             """
             if self.mqtt_config.max_retries <= self.mqtt_config.retries:
+                self.logger.error('MQTT连接失败')
                 raise Exception('MQTT连接失败')
             time.sleep(0.5)
         return self.__client
@@ -59,7 +64,7 @@ class MQTT:
         重新连接客户端
         :return:
         """
-        print(f'第{self.mqtt_config.retries + 1}次连接MQTT')
+        self.logger.debug(f'第{self.mqtt_config.retries + 1}次连接MQTT')
         self.mqtt_config.retries += 1
         self.mqtt_config.current_retries += 1
 
@@ -68,14 +73,15 @@ class MQTT:
 
     def __connected(self, _, __, ___, rc):
         if rc == 0:
-            print('mqtt连接成功')
+            self.logger.info('mqtt连接成功')
             self.mqtt_config.is_connected = True
             self.mqtt_config.retries = 0
         else:
-            print('mqtt连接失败，错误原因：', connack_string(rc))
+            self.logger.warning(f'mqtt连接失败，错误原因：{connack_string(rc)}')
             time.sleep(self.mqtt_config.retries_interval)
             if self.mqtt_config.retries >= self.mqtt_config.max_retries:
-                raise Exception('尝试连接超过最大连接数，mqtt连接失败')
+                self.logger.error('尝试连接MQTT超过最大连接数，mqtt连接失败')
+                raise Exception('尝试连接MQTT超过最大连接数，mqtt连接失败')
             else:
                 self.__reconnection()
 
@@ -117,7 +123,7 @@ class MQTT:
             try:
                 data = eval(msg.payload.decode('utf-8'))
             except Exception as e:
-                print(e)
+                self.logger.debug(e)
                 data = msg.payload.decode('utf-8')
             callback(data, msg.topic)
 
