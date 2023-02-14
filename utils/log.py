@@ -11,7 +11,7 @@ class Log:
     log_levels = ['DEBUG', 'INFO', 'WARNING', 'ERROR']
     level = logging.INFO
 
-    def __init__(self, name='log', level=logging.INFO):
+    def __init__(self, name='log', level: Union[str, int] = logging.INFO):
         self.__logger = logging.getLogger(name)
         self.set_level(level)
         if level := os.getenv('LOG_LEVEL', None):
@@ -22,11 +22,11 @@ class Log:
                      "(%(name)s,file:%(filename)s,func:%(funcName)s,line:%(lineno)s,pid:%(process)s)"
                      " %(message)s")
         color_config = {
-            'DEBUG': 'cyan',
+            'DEBUG': 'white',
             'INFO': 'green',
             'WARNING': 'yellow',
             'ERROR': 'red',
-            'CRITICAL': 'purple',
+            'CRITICAL': 'bg_red',
         }
         console_formatter = colorlog.ColoredFormatter(fmt='%(log_color)s' + formatter, log_colors=color_config)
         file_formatter = logging.Formatter(fmt=formatter)
