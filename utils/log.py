@@ -12,6 +12,7 @@ class Log:
     level = logging.INFO
 
     def __init__(self, name='log', level: Union[str, int] = logging.INFO):
+        # TODO: 归档时间
         self.__logger = logging.getLogger(name)
         self.set_level(level)
         if level := os.getenv('LOG_LEVEL', None):
