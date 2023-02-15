@@ -8,6 +8,7 @@ from PyQt5.QtCore import pyqtSignal, QObject
 class Calculator(QWidget):
     def __init__(self):
         super().__init__()
+        self.label_text = ''
         self.__set_window()
         self.__set_layout()
 
@@ -15,13 +16,13 @@ class Calculator(QWidget):
         self.setWindowTitle('计算机')
         self.setWindowIcon(QIcon('calculator.png'))
 
-        self.resize(300, 400)
+        self.setFixedSize(300, 400)
 
     def __set_layout(self):
         container = QVBoxLayout()
-        text = QLabel('0你是谁')
-        text.setFont(QFont('宋体',))
-        container.addWidget(text)
+        self.text = QLabel(self.label_text)
+        self.text.setFont(QFont('宋体',))
+        container.addWidget(self.text)
         # text = QLineEdit('0')
         # text.setPlaceholderText('输入计算值')
         # container.addWidget(text)
@@ -45,11 +46,12 @@ class Calculator(QWidget):
         container.addLayout(grid)
         self.setLayout(container)
 
-    @staticmethod
-    def btn_click(value):
+    def btn_click(self, value):
         def __entry():
             # FIXME: 计算器逻辑
-            print(value)
+            self.label_text += value
+            self.text.setText(self.label_text)
+            self.text.repaint()
         return __entry
 
 
