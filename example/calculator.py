@@ -2,6 +2,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QGridLayout, QPushButton, QLineEdit
 from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtCore import pyqtSignal, QObject
 
 
 class Calculator(QWidget):
@@ -37,7 +38,7 @@ class Calculator(QWidget):
         for index, item in enumerate(data):
             for key, value in enumerate(item):
                 btn = QPushButton(value)
-                btn.clicked.connect(self.__show_value)
+                btn.clicked.connect(self.btn_click(value))
                 btn.setFixedSize(75, 45)
                 grid.addWidget(btn, index, key)
 
@@ -45,8 +46,11 @@ class Calculator(QWidget):
         self.setLayout(container)
 
     @staticmethod
-    def __show_value(*args):
-        print(args)
+    def btn_click(value):
+        def __entry():
+            # FIXME: 计算器逻辑
+            print(value)
+        return __entry
 
 
 if __name__ == '__main__':
