@@ -26,7 +26,7 @@ class MqttConfiguration:
     @parse_configurator
     def get_config(filepath: Path, configurator: Base = None):
         config = configurator.load_config(filepath)
-        return MqttConfig(**config.get('mqtt', dict()))
+        return MqttConfig(**config.get('mqtt', dict()), config_file=filepath.__str__())
 
     @staticmethod
     @parse_configurator

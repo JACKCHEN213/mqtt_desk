@@ -22,12 +22,24 @@ class MqttConfig(BaseModel):
     password: str = Field(default='password', description='mqtt服务的登录密码')
     client_id: str = Field(default_factory=generate_client_id, description='mqtt客户端id')
 
+    config_name: str = Field(default='', description='mqtt配置文件名称')
+    config_file: str = Field(default='', description='mqtt配置文件路径')
+
     is_connected: bool = Field(default=False, description='是否连接成功')
     retries: int = Field(default=0, description='连接次数')
     max_retries: int = Field(default=3, description='最大的连接尝试次数')
     retries_interval: int = Field(default=2, description='默认连接间隔为5秒')
     current_retries: int = Field(default=0, description='当前连接的次数')
     connection_time: int = Field(default=0, description='连接时间')
+
+    def get_save_data(self):
+        return {
+            'ip': self.ip,
+            'port': self.port,
+            'username': self.username,
+            'password': self.password,
+            'config_name': self.config_name,
+        }
 
 
 __all__ = ['MqttConfig']
