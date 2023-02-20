@@ -347,7 +347,7 @@ p, li { white-space: pre-wrap; }
        <string>订阅</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="subscribe_btn_2">
+     <widget class="QPushButton" name="subscribe_save_btn">
       <property name="geometry">
        <rect>
         <x>110</x>

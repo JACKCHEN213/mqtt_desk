@@ -2,7 +2,7 @@
 import sys
 import time
 import pathlib
-from typing import Dict
+from typing import Dict, Union
 import json
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import Qt, QTimer
@@ -14,13 +14,21 @@ from config.drive.ini import Ini
 from config import CONFIG_DIR, DEFAULT_CONFIG
 from model.mqtt import MqttConfig
 from utils.qt_ex import QMessageBoxEx
+from common.mqtt import MQTT
 
 
 class Base:
     @staticmethod
-    def message(parent, msg, title='提示', timeout=1000, _type: str = 'success', auto_close=True, show_status=False):
+    def message(parent, msg, title='提示', fade=1000, _type: str = 'success', auto_close=True, show_status=True):
         """
-        消息提示，会自动消失
+        消息提示
+        :param parent: 父
+        :param msg: 消息内容
+        :param title: 消息标题
+        :param fade: 消失消失时间
+        :param _type: 消息类型, [info success warning error]
+        :param auto_close: 是否自动关闭
+        :param show_status: 是否展示窗口，如果不展示，窗口会自动关闭
         """
         msg_box = QMessageBoxEx(parent=parent)
         if not show_status:
@@ -48,12 +56,17 @@ class Base:
         msg_box.show()
         if not auto_close and show_status:
             return
-        QTimer.singleShot(timeout, msg_box.close)
+        QTimer.singleShot(fade, msg_box.close)
 
 
 class MqttDesk(Base):
     def __init__(self):
         self.mqtt_config: MqttConfig = MqttConfig()
+        self.__mqtt_client: Union[MQTT, None] = None
+        self.is_subscribe = False
+        self.current_subscribe = ''
+        self.is_publish = False
+        self.current_publish = ''
 
         self.app = QApplication(sys.argv)
         self.main_window = QMainWindow()
@@ -195,6 +208,70 @@ class MqttDesk(Base):
             self.ui.json_error.setStyleSheet('color: red')
             self.ui.json_error.setPlainText(f'不是一个有效json文本,{repr(e)}')
 
+    @property
+    def mqtt_client(self) -> MQTT:
+        if self.__mqtt_client is None:
+            self.__mqtt_client = MQTT(self.mqtt_config)
+        return self.__mqtt_client
+
+    def clear_mqtt_client(self):
+        if self.__mqtt_client is None:
+            return
+        self.__mqtt_client.client.loop_stop()
+        self.__mqtt_client.client.disconnect()
+        del self.__mqtt_client
+        self.__mqtt_client = None
+
+    def receive_topic(self, data, topic):
+        self.ui.subscribe_text.setText(json.dumps(data))
+
+    def validate_ip(self) -> bool:
+        ips = self.mqtt_config.ip.split('.')
+        if len(ips) != 4:
+            self.message(self.main_window, 'ip地址位数非法', _type='error')
+            return False
+        for ip in ips:
+            if ip != str(int(ip)):
+                self.message(self.main_window, f'ip段内容{ip}错误', _type='error')
+                return False
+            if 0 > int(ip) or int(ip) > 255:
+                self.message(self.main_window, f'ip段长度{ip}错误', _type='error')
+                return False
+        return True
+
+    def validate_mqtt_config(self) -> bool:
+        if not self.mqtt_config.ip:
+            self.message(self.main_window, 'mqtt的主机必须', _type='error')
+            return False
+        if not self.validate_ip():
+            return False
+        if not self.mqtt_config.port:
+            self.message(self.main_window, 'mqtt的端口必须', _type='error')
+            return False
+        if 0 > self.mqtt_config.port or self.mqtt_config.port > 65536:
+            self.message(self.main_window, 'mqtt的端口错误', _type='error')
+            return False
+        return True
+
+    def mqtt_subscribe(self):
+        if self.is_subscribe:
+            self.__mqtt_client.unsubscribe(self.current_subscribe)
+            self.clear_mqtt_client()
+            self.ui.subscribe_btn.setText('订阅')
+            self.ui.subscribe_btn.setStyleSheet('')
+            return
+        self.set_mqtt_config()
+        if not self.validate_mqtt_config():
+            return
+        if not self.ui.topic.currentText():
+            self.message(self.main_window, '订阅的topic不能为空', _type='error')
+            return
+        self.mqtt_client.subscribe('test', self.receive_topic)
+        self.is_subscribe = True
+        self.current_subscribe = 'test'
+        self.ui.subscribe_btn.setText('取消订阅')
+        self.ui.subscribe_btn.setStyleSheet('color: red;')
+
     def register_event(self):
         # 切换配置存储 or 加载
         self.ui.config_switch.clicked.connect(self.switch_config)
@@ -208,6 +285,8 @@ class MqttDesk(Base):
         self.ui.json_format.clicked.connect(self.json_format)
         self.ui.json_copy.clicked.connect(self.json_copy)
         self.ui.json_compress.clicked.connect(self.json_compress)
+        # 订阅 or 发布
+        self.ui.subscribe_btn.clicked.connect(self.mqtt_subscribe)
 
     def set_style(self):
         pass
