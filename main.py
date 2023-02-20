@@ -4,7 +4,10 @@ import time
 import pathlib
 from typing import Dict
 import json
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QPalette, QColor, QIcon
+import pyperclip
 from desk import Ui_MainWindow
 from config.mqtt_configuration import MqttConfiguration
 from config.drive.ini import Ini
@@ -12,7 +15,43 @@ from config import CONFIG_DIR, DEFAULT_CONFIG
 from model.mqtt import MqttConfig
 
 
-class MqttDesk:
+class Base:
+    @staticmethod
+    def message(parent, msg, title='提示', timeout=1000, _type: str = 'success', auto_close=True, show_close=False):
+        """
+        消息提示，会自动消失
+        """
+        msg_box = QMessageBox(parent)
+        m1 = msg_box.palette()
+        m1.setColor(QPalette.Background, QColor(255, 0, 0))
+        msg_box.setPalette(m1)
+        msg_box.setAutoFillBackground(True)
+        if not show_close:
+            msg_box.setWindowFlags(Qt.Tool | Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint)
+        else:
+            msg_box.setWindowFlags(Qt.Tool | Qt.WindowStaysOnTopHint)
+        msg_box.setWindowTitle(title)
+        msg_box.setText(msg)
+        msg_box.setWindowIcon(QIcon(':images/error.png'))
+        if _type.lower() == 'success':
+            style = 'color: #67c23a;background-color: #f0f9eb;border-color: #e1f3d8;'
+        elif _type.lower() == 'error' or _type.lower() == 'danger':
+            style = 'color: #f56c6c;background-color: #fef0f0;border-color: #fde2e2;'
+        elif _type.lower() == 'warning' or _type.lower() == 'warn':
+            style = 'color: #e6a23c;background-color: #fdf6ec;border-color: #faecd8;'
+        else:
+            style = 'color: #909399;background-color: #edf2fc;border-color: #ebeef5;'
+        msg_box.setStyleSheet(style)
+        msg_box.addButton('', QMessageBox.AcceptRole)
+        for btn in msg_box.buttons():
+            btn.hide()
+        msg_box.show()
+        if not auto_close and show_close:
+            return
+        QTimer.singleShot(timeout, msg_box.close)
+
+
+class MqttDesk(Base):
     def __init__(self):
         self.mqtt_config: MqttConfig = MqttConfig()
 
@@ -23,9 +62,14 @@ class MqttDesk:
         self.ui.setupUi(self.main_window)
         self.config_list: Dict[pathlib.Path, MqttConfig] = self.get_configuration_files()
 
+        self.init()
         self.set_config_list()
         self.register_event()
         self.set_style()
+
+    def init(self):
+        self.ui.config_box.setCurrentWidget(self.ui.load_config)
+        self.ui.send_receive_box.setCurrentWidget(self.ui.subscribe)
 
     def get_save_data(self):
         return {'mqtt': self.mqtt_config.get_save_data()}
@@ -130,6 +174,10 @@ class MqttDesk:
             self.ui.json_error.setStyleSheet('color: red')
             self.ui.json_error.setPlainText(f'不是一个有效json文本,{repr(e)}')
 
+    def json_copy(self):
+        pyperclip.copy(self.ui.json_content.toPlainText())
+        self.message(self.main_window, '成功复制到剪切板', auto_close=False, show_close=True)
+
     def register_event(self):
         # 切换配置存储 or 加载
         self.ui.config_switch.clicked.connect(self.switch_config)
@@ -141,6 +189,7 @@ class MqttDesk:
         self.ui.do_save_btn.clicked.connect(self.save_config)
         # JSON
         self.ui.json_format.clicked.connect(self.json_format)
+        self.ui.json_copy.clicked.connect(self.json_copy)
 
     def set_style(self):
         pass
