@@ -4,49 +4,49 @@ import time
 import pathlib
 from typing import Dict
 import json
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QPalette, QColor, QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 import pyperclip
 from desk import Ui_MainWindow
 from config.mqtt_configuration import MqttConfiguration
 from config.drive.ini import Ini
 from config import CONFIG_DIR, DEFAULT_CONFIG
 from model.mqtt import MqttConfig
+from utils.qt_ex import QMessageBoxEx
 
 
 class Base:
     @staticmethod
-    def message(parent, msg, title='提示', timeout=1000, _type: str = 'success', auto_close=True, show_close=False):
+    def message(parent, msg, title='提示', timeout=1000, _type: str = 'success', auto_close=True, show_status=False):
         """
         消息提示，会自动消失
         """
-        msg_box = QMessageBox(parent)
-        m1 = msg_box.palette()
-        m1.setColor(QPalette.Background, QColor(255, 0, 0))
-        msg_box.setPalette(m1)
-        msg_box.setAutoFillBackground(True)
-        if not show_close:
+        msg_box = QMessageBoxEx(parent=parent)
+        if not show_status:
             msg_box.setWindowFlags(Qt.Tool | Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint)
         else:
             msg_box.setWindowFlags(Qt.Tool | Qt.WindowStaysOnTopHint)
         msg_box.setWindowTitle(title)
         msg_box.setText(msg)
-        msg_box.setWindowIcon(QIcon(':images/error.png'))
         if _type.lower() == 'success':
             style = 'color: #67c23a;background-color: #f0f9eb;border-color: #e1f3d8;'
+            msg_box.setIconPixmap(QPixmap('images/success_24x24.png'))
         elif _type.lower() == 'error' or _type.lower() == 'danger':
             style = 'color: #f56c6c;background-color: #fef0f0;border-color: #fde2e2;'
+            msg_box.setIconPixmap(QPixmap('images/error_24x24.png'))
         elif _type.lower() == 'warning' or _type.lower() == 'warn':
             style = 'color: #e6a23c;background-color: #fdf6ec;border-color: #faecd8;'
+            msg_box.setIconPixmap(QPixmap('images/warning_24x24.png'))
         else:
             style = 'color: #909399;background-color: #edf2fc;border-color: #ebeef5;'
+            msg_box.setIconPixmap(QPixmap('images/info_24x24.png'))
         msg_box.setStyleSheet(style)
-        msg_box.addButton('', QMessageBox.AcceptRole)
+        msg_box.addButton('', QMessageBoxEx.AcceptRole)
         for btn in msg_box.buttons():
             btn.hide()
         msg_box.show()
-        if not auto_close and show_close:
+        if not auto_close and show_status:
             return
         QTimer.singleShot(timeout, msg_box.close)
 
@@ -70,6 +70,7 @@ class MqttDesk(Base):
     def init(self):
         self.ui.config_box.setCurrentWidget(self.ui.load_config)
         self.ui.send_receive_box.setCurrentWidget(self.ui.subscribe)
+        self.main_window.setWindowIcon(QIcon('images/favicon.png'))
 
     def get_save_data(self):
         return {'mqtt': self.mqtt_config.get_save_data()}
@@ -175,8 +176,24 @@ class MqttDesk(Base):
             self.ui.json_error.setPlainText(f'不是一个有效json文本,{repr(e)}')
 
     def json_copy(self):
+        if not self.ui.json_content.toPlainText():
+            self.message(self.main_window, '内容为空，不能复制', show_status=True, _type='warning')
+            return
         pyperclip.copy(self.ui.json_content.toPlainText())
-        self.message(self.main_window, '成功复制到剪切板', auto_close=False, show_close=True)
+        self.message(self.main_window, '成功复制到剪切板', show_status=True)
+
+    def json_compress(self):
+        if not self.ui.json_content.toPlainText():
+            self.message(self.main_window, '内容为空，不能压缩', show_status=True, _type='warning')
+            return
+        try:
+            data = json.loads(self.ui.json_content.toPlainText())
+            self.ui.json_content.setPlainText(json.dumps(data, ensure_ascii=False))
+            self.ui.json_error.setStyleSheet('color: green')
+            self.ui.json_error.setPlainText('json压缩成功')
+        except Exception as e:
+            self.ui.json_error.setStyleSheet('color: red')
+            self.ui.json_error.setPlainText(f'不是一个有效json文本,{repr(e)}')
 
     def register_event(self):
         # 切换配置存储 or 加载
@@ -190,6 +207,7 @@ class MqttDesk(Base):
         # JSON
         self.ui.json_format.clicked.connect(self.json_format)
         self.ui.json_copy.clicked.connect(self.json_copy)
+        self.ui.json_compress.clicked.connect(self.json_compress)
 
     def set_style(self):
         pass

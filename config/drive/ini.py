@@ -16,7 +16,7 @@ class Ini(Base):
 
     def save_config(self, filepath: Path, config: dict):
         if filepath.is_file():
-            self.configurator.read(filepath)
+            self.configurator.read(filepath, encoding='utf8')
         for section, item in config.items():
             if not isinstance(item, dict):
                 continue
@@ -24,12 +24,12 @@ class Ini(Base):
                 self.configurator.add_section(section)
             for option, value in item.items():
                 self.configurator.set(section, option, value.__str__())
-        self.configurator.write(open(filepath, 'w'))
+        self.configurator.write(open(filepath, 'w', encoding='utf8'))
 
     def load_config(self, filepath: Path) -> dict:
         ret = {}
         if filepath.is_file():
-            self.configurator.read(filepath)
+            self.configurator.read(filepath, encoding='utf8')
             for section, item in self.configurator.items():
                 ret[section] = {}
                 for option in item:
