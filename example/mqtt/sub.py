@@ -14,6 +14,6 @@ def print_topic(data, topic):
 
 
 if __name__ == '__main__':
-    mqtt_client = MQTT.get_instance((MqttConfiguration.get_config(CONFIG_DIR + 'default.ini')))
+    mqtt_client = MQTT.get_instance((MqttConfiguration.load_config(CONFIG_DIR + 'default.ini')))
     mqtt_client.subscribe('/test', print_topic)
     mqtt_client.run()

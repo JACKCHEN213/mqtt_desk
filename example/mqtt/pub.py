@@ -10,7 +10,7 @@ import time
 
 
 if __name__ == '__main__':
-    mqtt_client = MQTT.get_instance((MqttConfiguration.get_config(CONFIG_DIR + 'default.ini')))
+    mqtt_client = MQTT.get_instance((MqttConfiguration.load_config(CONFIG_DIR + 'default.ini')))
     while True:
         mqtt_client.publish('/test', 'hello')
         time.sleep(2)

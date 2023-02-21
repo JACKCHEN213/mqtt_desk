@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(756, 535)
+        MainWindow.resize(756, 534)
         MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
         MainWindow.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
         MainWindow.setDocumentMode(False)
@@ -68,8 +68,8 @@ class Ui_MainWindow(object):
         self.load_config.setObjectName("load_config")
         self.config_list = QtWidgets.QComboBox(self.load_config)
         self.config_list.setGeometry(QtCore.QRect(10, 20, 151, 25))
+        self.config_list.setEditable(True)
         self.config_list.setObjectName("config_list")
-        self.config_list.addItem("")
         self.do_load_btn = QtWidgets.QPushButton(self.load_config)
         self.do_load_btn.setGeometry(QtCore.QRect(170, 20, 51, 25))
         self.do_load_btn.setObjectName("do_load_btn")
@@ -118,6 +118,30 @@ class Ui_MainWindow(object):
         self.publish_btn = QtWidgets.QPushButton(self.publish)
         self.publish_btn.setGeometry(QtCore.QRect(10, 236, 91, 31))
         self.publish_btn.setObjectName("publish_btn")
+        self.Label = QtWidgets.QLabel(self.publish)
+        self.Label.setGeometry(QtCore.QRect(110, 240, 31, 25))
+        self.Label.setStyleSheet("color: rgb(206, 92, 0);")
+        self.Label.setObjectName("Label")
+        self.publish_interval = QtWidgets.QLineEdit(self.publish)
+        self.publish_interval.setGeometry(QtCore.QRect(140, 240, 31, 25))
+        self.publish_interval.setStyleSheet("QLineEdit {\n"
+"   color: green;\n"
+"   border: None;\n"
+"}\n"
+"\n"
+"QLineEdit:focus {\n"
+"   color: black;\n"
+"   border: 1px solid #999;\n"
+"   border-radius: 5px;\n"
+"}")
+        self.publish_interval.setObjectName("publish_interval")
+        self.Label_2 = QtWidgets.QLabel(self.publish)
+        self.Label_2.setGeometry(QtCore.QRect(171, 240, 21, 25))
+        self.Label_2.setStyleSheet("color: rgb(206, 92, 0);")
+        self.Label_2.setObjectName("Label_2")
+        self.persist_publish_btn = QtWidgets.QPushButton(self.publish)
+        self.persist_publish_btn.setGeometry(QtCore.QRect(190, 236, 92, 31))
+        self.persist_publish_btn.setObjectName("persist_publish_btn")
         self.send_receive_box.addWidget(self.publish)
         self.subscribe = QtWidgets.QWidget()
         self.subscribe.setStyleSheet("")
@@ -162,9 +186,8 @@ class Ui_MainWindow(object):
         self.topic_label.setObjectName("topic_label")
         self.topic = QtWidgets.QComboBox(self.topic_box)
         self.topic.setGeometry(QtCore.QRect(60, 30, 171, 25))
+        self.topic.setEditable(True)
         self.topic.setObjectName("topic")
-        self.topic.addItem("")
-        self.topic.addItem("")
         self.mode_switch = QtWidgets.QPushButton(self.centralwidget)
         self.mode_switch.setGeometry(QtCore.QRect(280, 212, 51, 21))
         self.mode_switch.setObjectName("mode_switch")
@@ -174,8 +197,8 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.status_bar)
 
         self.retranslateUi(MainWindow)
-        self.config_box.setCurrentIndex(1)
-        self.send_receive_box.setCurrentIndex(1)
+        self.config_box.setCurrentIndex(0)
+        self.send_receive_box.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -187,7 +210,6 @@ class Ui_MainWindow(object):
         self.lable4.setText(_translate("MainWindow", "登录用户："))
         self.lable2.setText(_translate("MainWindow", "登录密码："))
         self.config_save_load.setTitle(_translate("MainWindow", "配置存储 && 加载"))
-        self.config_list.setItemText(0, _translate("MainWindow", "默认配置"))
         self.do_load_btn.setText(_translate("MainWindow", "加载"))
         self.do_save_btn.setText(_translate("MainWindow", "保存"))
         self.config_name.setToolTip(_translate("MainWindow", "<html><head/><body><p><br/></p></body></html>"))
@@ -197,30 +219,17 @@ class Ui_MainWindow(object):
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'Ubuntu\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">{&quot;&quot;}</p></body></html>"))
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>"))
         self.publish_btn.setText(_translate("MainWindow", "发布"))
+        self.Label.setText(_translate("MainWindow", "间隔"))
+        self.publish_interval.setText(_translate("MainWindow", "10"))
+        self.Label_2.setText(_translate("MainWindow", "秒"))
+        self.persist_publish_btn.setText(_translate("MainWindow", "持续发布"))
         self.subscribe_text.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'Ubuntu\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">dsa</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">ad</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">sa</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">das</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">d</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">asd</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">asd</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">sa</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">dsa</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">dsa</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">dsa</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">dsa</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">d</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">sad</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">sa</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">dsa</p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">dsa</p></body></html>"))
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>"))
         self.subscribe_btn.setText(_translate("MainWindow", "订阅"))
         self.subscribe_save_btn.setText(_translate("MainWindow", "保存到文件"))
         self.subscribe_clear_btn.setText(_translate("MainWindow", "清空"))
@@ -235,7 +244,5 @@ class Ui_MainWindow(object):
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">提示信息</p></body></html>"))
         self.topic_box.setTitle(_translate("MainWindow", "topic配置"))
         self.topic_label.setText(_translate("MainWindow", "topic："))
-        self.topic.setItemText(0, _translate("MainWindow", "/LocXYZ/#"))
-        self.topic.setItemText(1, _translate("MainWindow", "..."))
         self.mode_switch.setText(_translate("MainWindow", "切换"))
 import data_rc

@@ -14,7 +14,7 @@ class Ini(Base):
             self.__driver = ConfigParser()
         return self.__driver
 
-    def save_config(self, filepath: Path, config: dict):
+    def save_config(self, filepath: Path, config: dict, *args, **kwargs):
         if filepath.is_file():
             self.configurator.read(filepath, encoding='utf8')
         for section, item in config.items():
@@ -26,7 +26,7 @@ class Ini(Base):
                 self.configurator.set(section, option, value.__str__())
         self.configurator.write(open(filepath, 'w', encoding='utf8'))
 
-    def load_config(self, filepath: Path) -> dict:
+    def load_config(self, filepath: Path, *args, **kwargs) -> dict:
         ret = {}
         if filepath.is_file():
             self.configurator.read(filepath, encoding='utf8')
