@@ -70,7 +70,7 @@ class MqttDesk(Base):
         self.__mqtt_client: Union[MQTT, None] = None
         self.is_subscribe = False
         self.current_subscribe = ''
-        self.subscribe_text = [0,1,2,3,4,5,1,1,1,1,1,1,1,1,1,1,1,1]
+        self.subscribe_text = []
         self.is_publish = False
         self.current_publish = ''
         self.publish_text = '{}'
