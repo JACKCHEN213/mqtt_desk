@@ -315,12 +315,13 @@ class MqttDesk(Base):
         self.load_input_config()
         if not self.validate_mqtt_config():
             return
-        if not self.ui.topic.currentText():
+        topic = self.ui.topic.currentText()
+        if not topic:
             self.message('订阅的topic不能为空', _type='error')
             return
-        self.mqtt_client.subscribe('test', self.receive_topic)
+        self.mqtt_client.subscribe(topic, self.receive_topic)
         self.is_subscribe = True
-        self.current_subscribe = 'test'
+        self.current_subscribe = topic
         self.ui.subscribe_btn.setText('取消订阅')
         self.ui.subscribe_btn.setStyleSheet('color: red;')
 
