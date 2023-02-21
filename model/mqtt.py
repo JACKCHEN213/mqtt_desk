@@ -41,5 +41,19 @@ class MqttConfig(BaseModel):
             'config_name': self.config_name,
         }
 
+    def __eq__(self, other):
+        """
+        只比较配置信息
+        """
+        if self.ip != other.ip:
+            return False
+        if self.port != other.port:
+            return False
+        if self.username != other.username:
+            return False
+        if self.password != other.password:
+            return False
+        return True
+
 
 __all__ = ['MqttConfig']

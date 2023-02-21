@@ -350,7 +350,7 @@ p, li { white-space: pre-wrap; }
      <widget class="QPushButton" name="subscribe_save_btn">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>107</x>
         <y>236</y>
         <width>91</width>
         <height>31</height>
@@ -358,6 +358,19 @@ p, li { white-space: pre-wrap; }
       </property>
       <property name="text">
        <string>保存到文件</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="subscribe_clear_btn">
+      <property name="geometry">
+       <rect>
+        <x>204</x>
+        <y>236</y>
+        <width>91</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>清空</string>
       </property>
      </widget>
     </widget>
