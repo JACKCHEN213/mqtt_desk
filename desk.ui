@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>756</width>
-    <height>534</height>
+    <height>533</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -296,7 +296,7 @@ p, li { white-space: pre-wrap; }
      <widget class="QLabel" name="interval_text1">
       <property name="geometry">
        <rect>
-        <x>110</x>
+        <x>100</x>
         <y>212</y>
         <width>31</width>
         <height>25</height>
@@ -312,42 +312,27 @@ p, li { white-space: pre-wrap; }
      <widget class="QLineEdit" name="publish_interval">
       <property name="geometry">
        <rect>
-        <x>140</x>
+        <x>131</x>
         <y>212</y>
-        <width>31</width>
+        <width>60</width>
         <height>25</height>
        </rect>
       </property>
       <property name="styleSheet">
        <string notr="true">QLineEdit {
-   color: green;
+   color: brown;
    border: None;
+   text-align: right
 }
 
 QLineEdit:focus {
-   color: black;
+   color: red;
    border: 1px solid #999;
    border-radius: 5px;
 }</string>
       </property>
       <property name="text">
        <string>10</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="interval_text2">
-      <property name="geometry">
-       <rect>
-        <x>171</x>
-        <y>212</y>
-        <width>21</width>
-        <height>25</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: brown;</string>
-      </property>
-      <property name="text">
-       <string>秒</string>
       </property>
      </widget>
      <widget class="QPushButton" name="persist_publish_btn">
@@ -363,6 +348,53 @@ QLineEdit:focus {
        <string>持续发布</string>
       </property>
      </widget>
+     <widget class="QComboBox" name="interval_unit">
+      <property name="geometry">
+       <rect>
+        <x>190</x>
+        <y>212</y>
+        <width>41</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QComboBox::drop-down {
+  image: None;
+}
+
+QComboBox {
+  border-style: None;
+  color: brown;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+QComboBox:hover {
+  color: green;
+  background-color: #ddd;
+}</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>秒</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>分</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>时</string>
+       </property>
+      </item>
+     </widget>
+     <zorder>interval_unit</zorder>
+     <zorder>publish_text</zorder>
+     <zorder>publish_btn</zorder>
+     <zorder>interval_text1</zorder>
+     <zorder>publish_interval</zorder>
+     <zorder>persist_publish_btn</zorder>
     </widget>
     <widget class="QWidget" name="subscribe">
      <property name="styleSheet">
@@ -524,6 +556,9 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="editable">
       <bool>true</bool>
+     </property>
+     <property name="duplicatesEnabled">
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="QPushButton" name="topic_save_btn">

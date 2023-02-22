@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(756, 534)
+        MainWindow.resize(756, 533)
         MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
         MainWindow.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
         MainWindow.setDocumentMode(False)
@@ -119,29 +119,52 @@ class Ui_MainWindow(object):
         self.publish_btn.setGeometry(QtCore.QRect(0, 210, 91, 31))
         self.publish_btn.setObjectName("publish_btn")
         self.interval_text1 = QtWidgets.QLabel(self.publish)
-        self.interval_text1.setGeometry(QtCore.QRect(110, 212, 31, 25))
+        self.interval_text1.setGeometry(QtCore.QRect(100, 212, 31, 25))
         self.interval_text1.setStyleSheet("color: brown;")
         self.interval_text1.setObjectName("interval_text1")
         self.publish_interval = QtWidgets.QLineEdit(self.publish)
-        self.publish_interval.setGeometry(QtCore.QRect(140, 212, 31, 25))
+        self.publish_interval.setGeometry(QtCore.QRect(131, 212, 60, 25))
         self.publish_interval.setStyleSheet("QLineEdit {\n"
-"   color: green;\n"
+"   color: brown;\n"
 "   border: None;\n"
+"   text-align: right\n"
 "}\n"
 "\n"
 "QLineEdit:focus {\n"
-"   color: black;\n"
+"   color: red;\n"
 "   border: 1px solid #999;\n"
 "   border-radius: 5px;\n"
 "}")
         self.publish_interval.setObjectName("publish_interval")
-        self.interval_text2 = QtWidgets.QLabel(self.publish)
-        self.interval_text2.setGeometry(QtCore.QRect(171, 212, 21, 25))
-        self.interval_text2.setStyleSheet("color: brown;")
-        self.interval_text2.setObjectName("interval_text2")
         self.persist_publish_btn = QtWidgets.QPushButton(self.publish)
         self.persist_publish_btn.setGeometry(QtCore.QRect(210, 210, 91, 31))
         self.persist_publish_btn.setObjectName("persist_publish_btn")
+        self.interval_unit = QtWidgets.QComboBox(self.publish)
+        self.interval_unit.setGeometry(QtCore.QRect(190, 212, 41, 25))
+        self.interval_unit.setStyleSheet("QComboBox::drop-down {\n"
+"  image: None;\n"
+"}\n"
+"\n"
+"QComboBox {\n"
+"  border-style: None;\n"
+"  color: brown;\n"
+"  background-color: rgba(0, 0, 0, 0);\n"
+"}\n"
+"\n"
+"QComboBox:hover {\n"
+"  color: green;\n"
+"  background-color: #ddd;\n"
+"}")
+        self.interval_unit.setObjectName("interval_unit")
+        self.interval_unit.addItem("")
+        self.interval_unit.addItem("")
+        self.interval_unit.addItem("")
+        self.interval_unit.raise_()
+        self.publish_text.raise_()
+        self.publish_btn.raise_()
+        self.interval_text1.raise_()
+        self.publish_interval.raise_()
+        self.persist_publish_btn.raise_()
         self.send_receive_box.addWidget(self.publish)
         self.subscribe = QtWidgets.QWidget()
         self.subscribe.setStyleSheet("")
@@ -183,6 +206,7 @@ class Ui_MainWindow(object):
         self.topic = QtWidgets.QComboBox(self.topic_box)
         self.topic.setGeometry(QtCore.QRect(60, 30, 171, 25))
         self.topic.setEditable(True)
+        self.topic.setDuplicatesEnabled(False)
         self.topic.setObjectName("topic")
         self.topic_save_btn = QtWidgets.QPushButton(self.topic_box)
         self.topic_save_btn.setGeometry(QtCore.QRect(240, 30, 51, 25))
@@ -239,8 +263,10 @@ class Ui_MainWindow(object):
         self.publish_btn.setText(_translate("MainWindow", "发布"))
         self.interval_text1.setText(_translate("MainWindow", "间隔"))
         self.publish_interval.setText(_translate("MainWindow", "10"))
-        self.interval_text2.setText(_translate("MainWindow", "秒"))
         self.persist_publish_btn.setText(_translate("MainWindow", "持续发布"))
+        self.interval_unit.setItemText(0, _translate("MainWindow", "秒"))
+        self.interval_unit.setItemText(1, _translate("MainWindow", "分"))
+        self.interval_unit.setItemText(2, _translate("MainWindow", "时"))
         self.subscribe_text.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"

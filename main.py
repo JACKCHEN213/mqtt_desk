@@ -6,8 +6,8 @@ import pathlib
 from typing import Dict, Union
 import json
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QObject
-from PyQt5.QtGui import QIcon, QPixmap, QTextCursor
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QObject, QEvent
+from PyQt5.QtGui import QIcon, QPixmap, QTextCursor, QKeyEvent
 import pyperclip
 from desk import Ui_MainWindow
 from config.drive import Json
@@ -103,10 +103,23 @@ class MqttDesk(Base):
     def init(self):
         self.ui.config_box.setCurrentWidget(self.ui.load_config)
         self.ui.send_receive_box.setCurrentWidget(self.ui.publish)
+        self.ui.topic.installEventFilter(self)
+        self.ui.config_list.installEventFilter(self)
+        self.ui.interval_unit.installEventFilter(self)
+        self.ui.publish_interval.setAlignment(Qt.AlignRight)
         self.setFixedSize(756, 535)
         self.setWindowIcon(QIcon('images/favicon.png'))
         self.__set_subscribe_text()
         self.__set_publish_text()
+
+    def eventFilter(self, a0: QObject, a1: QEvent) -> bool:
+        if a0 in [self.ui.topic, self.ui.config_list, self.ui.interval_unit]:
+            # 别给我<Enter>自己增加item
+            if a1.type() == QEvent.KeyPress:
+                ke = QKeyEvent(a1)
+                if ke.key() in [Qt.Key_Enter, Qt.Key_Return]:
+                    return True
+        return super().eventFilter(a0, a1)
 
     def get_save_data(self):
         return {'mqtt': self.mqtt_config.get_save_data()}
@@ -375,10 +388,40 @@ class MqttDesk(Base):
         content = self.ui.publish_text.toPlainText()
         self.topic_list[topic] = content
         Configuration.save_config(pathlib.Path(CONFIG_DIR) / TOPIC_CONFIG_FILE, self.topic_list, Json)
+        self.set_topic_list()
+        self.ui.topic.setCurrentText(topic)
+        self.ui.publish_text.setPlainText(self.topic_list[topic])
         self.message('topic保存成功', show_status=False)
+
+    def change_topic(self):
+        if self.ui.topic.currentIndex() == -1:
+            return
+        topic = self.ui.topic.currentText()
+        if self.topic_list.get(topic, None) is None:
+            return
+        self.ui.publish_text.setPlainText(self.topic_list[topic])
+
+    def mqtt_publish(self):
+        content = self.ui.publish_text.toPlainText()
+        if not content:
+            self.message('发布的消息内容不能为空', _type='error')
+            return
+        topic = self.ui.topic.currentText()
+        if not topic:
+            self.message('发布的消息主题不能为空', _type='error')
+            return
+        self.load_input_config()
+        if not self.validate_mqtt_config():
+            return
+        self.mqtt_client.publish(topic, content)
+
+    def persist_mqtt_publish(self):
+        # FIXME: 一边发布，一边订阅，复用同一个客户段会出问题
+        pass
 
     def register_event(self):
         # 切换配置存储 or 加载
+        # FIXME: IDE提示代码重复了
         self.ui.config_switch.clicked.connect(self.switch_config)
         # 订阅 or 发布切换
         self.ui.mode_switch.clicked.connect(self.switch_mode)
@@ -388,15 +431,19 @@ class MqttDesk(Base):
         self.ui.do_save_btn.clicked.connect(self.save_config)
         # topic保存
         self.ui.topic_save_btn.clicked.connect(self.save_topic)
+        self.ui.topic.currentIndexChanged.connect(self.change_topic)
         # JSON
         self.ui.json_format.clicked.connect(self.json_format)
         self.ui.json_copy.clicked.connect(self.json_copy)
         self.ui.json_compress.clicked.connect(self.json_compress)
-        # 订阅 or 发布
+        # 订阅
         self.ui.subscribe_btn.clicked.connect(self.mqtt_subscribe)
         self.subscribe_render_sig.connect(self.render_subscribe_text)
         self.ui.subscribe_save_btn.clicked.connect(self.save_subscribe)
         self.ui.subscribe_clear_btn.clicked.connect(self.clear_subscribe_text)
+        #  发布
+        self.ui.publish_btn.clicked.connect(self.mqtt_publish)
+        self.ui.persist_publish_btn.clicked.connect(self.persist_mqtt_publish)
 
     def set_style(self):
         self.mode_switch_style = MultiCssModel()
