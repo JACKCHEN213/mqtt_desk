@@ -6,34 +6,30 @@ from pathlib import Path
 
 class Ini(Base):
 
-    __driver: ConfigParser = None
-
-    @property
-    def configurator(self) -> ConfigParser:
-        if self.__driver is None:
-            self.__driver = ConfigParser()
-        return self.__driver
-
-    def save_config(self, filepath: Path, config: dict, *args, **kwargs):
+    @staticmethod
+    def save_config(filepath: Path, config: dict, *args, **kwargs):
+        configurator = ConfigParser()
         if filepath.is_file():
-            self.configurator.read(filepath, encoding='utf8')
+            configurator.read(filepath, encoding='utf8')
         for section, item in config.items():
             if not isinstance(item, dict):
                 continue
-            if section not in self.configurator.sections():
-                self.configurator.add_section(section)
+            if section not in configurator.sections():
+                configurator.add_section(section)
             for option, value in item.items():
-                self.configurator.set(section, option, value.__str__())
-        self.configurator.write(open(filepath, 'w', encoding='utf8'))
+                configurator.set(section, option, value.__str__())
+        configurator.write(open(filepath, 'w', encoding='utf8'))
 
-    def load_config(self, filepath: Path, *args, **kwargs) -> dict:
+    @staticmethod
+    def load_config(filepath: Path, *args, **kwargs) -> dict:
         ret = {}
         if filepath.is_file():
-            self.configurator.read(filepath, encoding='utf8')
-            for section, item in self.configurator.items():
+            configurator = ConfigParser()
+            configurator.read(filepath, encoding='utf8')
+            for section, item in configurator.items():
                 ret[section] = {}
                 for option in item:
-                    ret[section][option] = self.configurator.get(section, option)
+                    ret[section][option] = configurator.get(section, option)
         return ret
 
 

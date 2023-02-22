@@ -10,8 +10,8 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QObject
 from PyQt5.QtGui import QIcon, QPixmap, QTextCursor
 import pyperclip
 from desk import Ui_MainWindow
-from config.mqtt_configuration import MqttConfiguration
-from config.topic_configuration import TopicConfiguration
+from config.drive import Json
+from config.configuration import Configuration
 from config import CONFIG_DIR, DEFAULT_CONFIG_FILE, TOPIC_CONFIG_FILE
 from model.mqtt import MqttConfig
 from utils.qt_ex import QMessageBoxEx
@@ -78,7 +78,7 @@ class MqttDesk(Base):
         self.app = app
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.config_list: Dict[pathlib.Path, MqttConfig] = self.get_configuration_files()
+        self.config_list: Dict[pathlib.Path, MqttConfig] = dict()
         self.topic_list: Dict[str, str] = {}
 
         self.init()
@@ -115,17 +115,17 @@ class MqttDesk(Base):
     def get_configuration_files() -> Dict[pathlib.Path, MqttConfig]:
         config_dir = pathlib.Path(CONFIG_DIR)
         config_dir.mkdir(parents=True, exist_ok=True)
-        return {file: MqttConfiguration.load_config(file) for file in list(config_dir.glob('*.ini'))}
+        return {file: MqttConfig(**Configuration.load_config(file).get('mqtt', dict()))
+                for file in list(config_dir.glob('*.ini'))}
 
     def set_config_list(self):
+        self.config_list = self.get_configuration_files()
         if not self.config_list or '默认配置' not in [config.config_name for config in self.config_list.values()]:
             # 添加默认配置
             self.mqtt_config.config_name = '默认配置'
             default_config = pathlib.Path(CONFIG_DIR + DEFAULT_CONFIG_FILE)
-            MqttConfiguration.save_config(default_config, config=self.get_save_data())
+            Configuration.save_config(default_config, config=self.get_save_data())
             self.config_list[default_config] = self.mqtt_config
-        print(self.config_list)
-        # TODO: 配置有问题
         self.ui.config_list.clear()
         for file, config in self.config_list.items():
             if config.config_name == '默认配置':
@@ -150,14 +150,14 @@ class MqttDesk(Base):
     def set_topic_list(self):
         topic_file = pathlib.Path(CONFIG_DIR) / TOPIC_CONFIG_FILE
         if not topic_file.is_file():
-            TopicConfiguration.save_config(topic_file, {'default': 'default'})
-        self.topic_list = TopicConfiguration.load_config(topic_file)
+            Configuration.save_config(topic_file, {'default': 'default'}, Json)
+        self.topic_list = Configuration.load_config(topic_file, Json)
         if not isinstance(self.topic_list, dict):
             self.topic_list = {'default': 'default'}
-            TopicConfiguration.save_config(topic_file, self.topic_list)
+            Configuration.save_config(topic_file, self.topic_list, Json)
         if self.topic_list.get('default', None) is None:
             self.topic_list['default'] = 'default'
-            TopicConfiguration.save_config(topic_file, self.topic_list)
+            Configuration.save_config(topic_file, self.topic_list, Json)
         self.ui.topic.clear()
         for topic in self.topic_list:
             self.ui.topic.addItem(topic)
@@ -204,7 +204,7 @@ class MqttDesk(Base):
         self.load_input_config()
         self.mqtt_config.config_name = self.ui.config_name.text()
         filepath = pathlib.Path(CONFIG_DIR + self.ui.config_name.text() + '.ini')
-        MqttConfiguration.save_config(filepath, self.get_save_data())
+        Configuration.save_config(filepath, self.get_save_data())
         self.mqtt_config.config_file = filepath
         self.config_list = self.get_configuration_files()
         self.set_config_list()

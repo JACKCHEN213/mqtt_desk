@@ -15,12 +15,14 @@ def parse_configurator(func):
 
 class Base(metaclass=ABCMeta):
 
+    @staticmethod
     @abstractmethod
-    def load_config(self, filepath: Path, *args, **kwargs):
+    def load_config(filepath: Path, *args, **kwargs):
         pass
 
+    @staticmethod
     @abstractmethod
-    def save_config(self, filepath: Path, config: dict, *args, **kwargs):
+    def save_config(filepath: Path, config: dict, *args, **kwargs):
         pass
 
 
