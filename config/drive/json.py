@@ -16,17 +16,17 @@ class Json(Base):
     def save_config(filepath: Path, config: dict, *args, **kwargs):
         if not filepath.is_file():
             with open(filepath, 'w+') as fp:
-                json.dump(config, fp)
+                json.dump(config, fp, indent=2, ensure_ascii=False)
         else:
             content = Json.load_config(filepath)
             if not isinstance(content, dict):
                 with open(filepath, 'w+') as fp:
-                    json.dump(config, fp)
+                    json.dump(config, fp, indent=2, ensure_ascii=False)
             else:
                 for key, value in config.items():
                     content[key] = value
                 with open(filepath, 'w+') as fp:
-                    json.dump(content, fp)
+                    json.dump(config, fp, indent=2, ensure_ascii=False)
 
 
 __all__ = ['Json']

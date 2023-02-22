@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="image">
     <file>images/switch.png</file>
+    <file>images/mode_switch_brown_32x32.png</file>
+    <file>images/mode_switch_green_32x32.png</file>
   </qresource>
 </RCC>

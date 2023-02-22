@@ -13,7 +13,7 @@ from desk import Ui_MainWindow
 from config.drive import Json
 from config.configuration import Configuration
 from config import CONFIG_DIR, DEFAULT_CONFIG_FILE, TOPIC_CONFIG_FILE
-from model.mqtt import MqttConfig
+from model import MqttConfig, MultiCssModel
 from utils.qt_ex import QMessageBoxEx
 from utils.log import Log
 from common.mqtt import MQTT
@@ -82,10 +82,10 @@ class MqttDesk(Base):
         self.topic_list: Dict[str, str] = {}
 
         self.init()
+        self.set_style()
         self.set_config_list()
         self.set_topic_list()
         self.register_event()
-        self.set_style()
 
     def __set_subscribe_text(self):
         all_text = ''
@@ -183,10 +183,20 @@ class MqttDesk(Base):
         """
         订阅 or 发布切换
         """
+        color = 'green'
+        text = '订阅模式'
         if self.ui.send_receive_box.currentWidget().objectName() == 'publish':
             self.ui.send_receive_box.setCurrentWidget(self.ui.subscribe)
         else:
             self.ui.send_receive_box.setCurrentWidget(self.ui.publish)
+            color = 'brown'
+            text = '发布模式'
+        self.mode_switch_style.data['QPushButton'].attrs['image'] =\
+            f'url(:/image/images/mode_switch_{color}_32x32.png)'
+        self.ui.mode_switch.setStyleSheet(self.mode_switch_style.__str__())
+        self.mode_switch_text_style.data['QLabel'].attrs['color'] = color
+        self.ui.mode_switch_text.setStyleSheet(self.mode_switch_text_style.__str__())
+        self.ui.mode_switch_text.setText(text)
 
     def load_config(self):
         for file, config in self.config_list.items():
@@ -218,17 +228,15 @@ class MqttDesk(Base):
     def json_format(self):
         json_text = self.ui.json_content.toPlainText()
         if not json_text:
-            self.ui.json_error.setStyleSheet('color: red')
-            self.ui.json_error.setPlainText('请输入json文本')
+            self.message('请输入json文件', _type='error')
             return
         try:
             json_data = json.loads(json_text)
-            self.ui.json_error.setStyleSheet('color: green')
-            self.ui.json_error.setPlainText('json校验成功')
+            self.message('json校验成功')
             self.ui.json_content.setPlainText(json.dumps(json_data, ensure_ascii=False, indent=2))
         except Exception as e:
-            self.ui.json_error.setStyleSheet('color: red')
-            self.ui.json_error.setPlainText(f'不是一个有效json文本,{repr(e)}')
+            self.logger.debug(e)
+            self.message('不是一个有效的json文本', _type='error')
 
     def json_copy(self):
         if not self.ui.json_content.toPlainText():
@@ -244,11 +252,10 @@ class MqttDesk(Base):
         try:
             data = json.loads(self.ui.json_content.toPlainText())
             self.ui.json_content.setPlainText(json.dumps(data, ensure_ascii=False))
-            self.ui.json_error.setStyleSheet('color: green')
-            self.ui.json_error.setPlainText('json压缩成功')
+            self.message('json压缩成功')
         except Exception as e:
-            self.ui.json_error.setStyleSheet('color: red')
-            self.ui.json_error.setPlainText(f'不是一个有效json文本,{repr(e)}')
+            self.logger.debug(e)
+            self.message('不是一个有效的json文本', _type='error')
 
     def __compare_config(self):
         """
@@ -363,6 +370,13 @@ class MqttDesk(Base):
         self.subscribe_text = []
         self.__set_subscribe_text()
 
+    def save_topic(self):
+        topic = self.ui.topic.currentText()
+        content = self.ui.publish_text.toPlainText()
+        self.topic_list[topic] = content
+        Configuration.save_config(pathlib.Path(CONFIG_DIR) / TOPIC_CONFIG_FILE, self.topic_list, Json)
+        self.message('topic保存成功', show_status=False)
+
     def register_event(self):
         # 切换配置存储 or 加载
         self.ui.config_switch.clicked.connect(self.switch_config)
@@ -372,6 +386,8 @@ class MqttDesk(Base):
         self.ui.do_load_btn.clicked.connect(self.load_config)
         # 保存配置
         self.ui.do_save_btn.clicked.connect(self.save_config)
+        # topic保存
+        self.ui.topic_save_btn.clicked.connect(self.save_topic)
         # JSON
         self.ui.json_format.clicked.connect(self.json_format)
         self.ui.json_copy.clicked.connect(self.json_copy)
@@ -383,7 +399,22 @@ class MqttDesk(Base):
         self.ui.subscribe_clear_btn.clicked.connect(self.clear_subscribe_text)
 
     def set_style(self):
-        pass
+        self.mode_switch_style = MultiCssModel()
+        self.mode_switch_style.data['QPushButton'] = MultiCssModel.single_class()(
+            tag_name='QPushButton',
+            border_radius='14px',
+            background_color='#eee',
+            image='url(:/image/images/mode_switch_green_32x32.png)'
+        )
+        self.mode_switch_style.data['QPushButton:hover'] = MultiCssModel.single_class()(
+            tag_name='QPushButton:hover',
+            background_color='#ddd',
+        )
+        self.mode_switch_text_style = MultiCssModel()
+        self.mode_switch_text_style.data['QLabel'] = MultiCssModel.single_class()(
+            tag_name='QLabel',
+            color='green'
+        )
 
     def run(self):
         self.show()
