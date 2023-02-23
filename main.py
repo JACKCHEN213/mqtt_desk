@@ -44,16 +44,16 @@ class Base(QMainWindow):
         msg_box.setText(msg)
         if _type.lower() == 'success':
             style = 'color: #67c23a;background-color: #f0f9eb;border-color: #e1f3d8;'
-            msg_box.setIconPixmap(QPixmap('images/success_24x24.png'))
+            msg_box.setIconPixmap(QPixmap(':/image/images/success_24x24.png'))
         elif _type.lower() == 'error' or _type.lower() == 'danger':
             style = 'color: #f56c6c;background-color: #fef0f0;border-color: #fde2e2;'
-            msg_box.setIconPixmap(QPixmap('images/error_24x24.png'))
+            msg_box.setIconPixmap(QPixmap(':/image/images/error_24x24.png'))
         elif _type.lower() == 'warning' or _type.lower() == 'warn':
             style = 'color: #e6a23c;background-color: #fdf6ec;border-color: #faecd8;'
-            msg_box.setIconPixmap(QPixmap('images/warning_24x24.png'))
+            msg_box.setIconPixmap(QPixmap(':/image/images/warning_24x24.png'))
         else:
             style = 'color: #909399;background-color: #edf2fc;border-color: #ebeef5;'
-            msg_box.setIconPixmap(QPixmap(':/images/info_24x24.png'))
+            msg_box.setIconPixmap(QPixmap(':/image/images/info_24x24.png'))
         msg_box.setStyleSheet(style)
         msg_box.addButton('', QMessageBoxEx.AcceptRole)
         for btn in msg_box.buttons():
@@ -100,7 +100,7 @@ class MqttDesk(Base):
         self.ui.interval_unit.installEventFilter(self)
         self.ui.publish_interval.setAlignment(Qt.AlignRight)
         self.setFixedSize(756, 535)
-        self.setWindowIcon(QIcon('images/favicon.png'))
+        self.setWindowIcon(QIcon(':/image/images/favicon.png'))
         self.set_subscribe_text()
 
     def set_subscribe_text(self):
