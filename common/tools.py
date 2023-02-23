@@ -13,7 +13,7 @@ def caller(func):
                 frame = frame.f_back
                 logger.debug(frame)
             except Exception as e:
-                logger.debug(e)
+                repr(e)
                 break
         return func(*args, **kwargs)
 

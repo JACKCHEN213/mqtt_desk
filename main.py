@@ -1,23 +1,26 @@
 # -*- coding: utf-8 -*-
-import os
 import sys
 import time
 import pathlib
 from typing import Dict, Union
-import json
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QObject, QEvent
 from PyQt5.QtGui import QIcon, QPixmap, QTextCursor, QKeyEvent
-import pyperclip
 from desk import Ui_MainWindow
 from config.drive import Json
 from config.configuration import Configuration
-from config import CONFIG_DIR, DEFAULT_CONFIG_FILE, TOPIC_CONFIG_FILE
+from config import CONFIG_DIR, DEFAULT_CONFIG_FILE, TOPIC_CONFIG_FILE, LOG_CONFIG
 from model import MqttConfig, MultiCssModel
 from utils.qt_ex import QMessageBoxEx
 from utils.log import Log
-from common.mqtt import MQTT
-from core import PersistPublish, Publish
+from common import MQTT
+from core import (
+    PersistPublish,
+    Publish,
+    Subscribe,
+    DataFormat,
+    Topic
+)
 
 
 class Base(QMainWindow):
@@ -66,7 +69,7 @@ class MqttDesk(Base):
     def __init__(self, app):
         super().__init__()
 
-        self.logger = Log('mqtt_desk')
+        self.logger = Log('mqtt_desk', log_config=LOG_CONFIG)
         self.mqtt_config: MqttConfig = MqttConfig()
         self.subscribe_mqtt_client: Union[MQTT, None] = None
         self.publish_mqtt_client: Union[MQTT, None] = None
@@ -88,7 +91,18 @@ class MqttDesk(Base):
         self.set_topic_list()
         self.register_event()
 
-    def __set_subscribe_text(self):
+    def init(self):
+        self.ui.config_box.setCurrentWidget(self.ui.load_config)
+        self.ui.send_receive_box.setCurrentWidget(self.ui.subscribe)
+        self.ui.topic.installEventFilter(self)
+        self.ui.config_list.installEventFilter(self)
+        self.ui.interval_unit.installEventFilter(self)
+        self.ui.publish_interval.setAlignment(Qt.AlignRight)
+        self.setFixedSize(756, 535)
+        self.setWindowIcon(QIcon('images/favicon.png'))
+        self.set_subscribe_text()
+
+    def set_subscribe_text(self):
         all_text = ''
         for index, text in enumerate(self.subscribe_text):
             all_text += "<span style='font-weight: bold;'>{:<5d}</span>{}<br />".format(index + 1, text)
@@ -97,17 +111,6 @@ class MqttDesk(Base):
         cursor = self.ui.subscribe_text.textCursor()
         cursor.movePosition(QTextCursor.End)
         self.ui.subscribe_text.setTextCursor(cursor)
-
-    def init(self):
-        self.ui.config_box.setCurrentWidget(self.ui.load_config)
-        self.ui.send_receive_box.setCurrentWidget(self.ui.publish)
-        self.ui.topic.installEventFilter(self)
-        self.ui.config_list.installEventFilter(self)
-        self.ui.interval_unit.installEventFilter(self)
-        self.ui.publish_interval.setAlignment(Qt.AlignRight)
-        self.setFixedSize(756, 535)
-        self.setWindowIcon(QIcon('images/favicon.png'))
-        self.__set_subscribe_text()
 
     def eventFilter(self, a0: QObject, a1: QEvent) -> bool:
         if a0 in [self.ui.topic, self.ui.config_list, self.ui.interval_unit]:
@@ -208,199 +211,33 @@ class MqttDesk(Base):
         self.ui.mode_switch_text.setStyleSheet(self.mode_switch_text_style.__str__())
         self.ui.mode_switch_text.setText(text)
 
-    def load_config(self):
-        for file, config in self.config_list.items():
-            if config.config_name == self.ui.config_list.currentText():
-                self.mqtt_config = config
-                self.set_mqtt_config()
-                return
-        for file, config in self.config_list.items():
-            if file.stem == self.ui.config_list.currentText():
-                self.mqtt_config = config
-                self.set_mqtt_config()
-                return
-
-    def save_config(self):
-        self.load_input_config()
-        self.mqtt_config.config_name = self.ui.config_name.text()
-        filepath = pathlib.Path(CONFIG_DIR + self.ui.config_name.text() + '.ini')
-        Configuration.save_config(filepath, self.get_save_data())
-        self.mqtt_config.config_file = filepath
-        self.config_list = self.get_configuration_files()
-        self.set_config_list()
-        for file, config in self.config_list.items():
-            if file != filepath:
-                continue
-            self.mqtt_config = config
-            self.ui.config_list.setCurrentText(config.config_name)
-            self.set_mqtt_config()
-
-    def json_format(self):
-        json_text = self.ui.json_content.toPlainText()
-        if not json_text:
-            self.message('请输入json文件', _type='error')
-            return
-        try:
-            json_data = json.loads(json_text)
-            self.message('json校验成功')
-            self.ui.json_content.setPlainText(json.dumps(json_data, ensure_ascii=False, indent=2))
-        except Exception as e:
-            self.logger.debug(e)
-            self.message('不是一个有效的json文本', _type='error')
-
-    def json_copy(self):
-        if not self.ui.json_content.toPlainText():
-            self.message('内容为空，不能复制', show_status=True, _type='warning')
-            return
-        pyperclip.copy(self.ui.json_content.toPlainText())
-        self.message('成功复制到剪切板', show_status=True)
-
-    def json_compress(self):
-        if not self.ui.json_content.toPlainText():
-            self.message('内容为空，不能压缩', show_status=True, _type='warning')
-            return
-        try:
-            data = json.loads(self.ui.json_content.toPlainText())
-            self.ui.json_content.setPlainText(json.dumps(data, ensure_ascii=False))
-            self.message('json压缩成功')
-        except Exception as e:
-            self.logger.debug(e)
-            self.message('不是一个有效的json文本', _type='error')
-
-    @staticmethod
-    def clear_mqtt_client(mqtt_client: MQTT):
-        if not mqtt_client:
-            return
-        mqtt_client.client.loop_stop()
-        mqtt_client.client.disconnect()
-
-    def render_subscribe_text(self, data: str):
-        self.subscribe_text.append(data)
-        self.__set_subscribe_text()
-
-    def receive_topic(self, data, topic):
-        """
-        NOTE: 这里是在子线程中不能渲染界面，通过触发自定事件，使主线程渲染
-        """
-        if not isinstance(data, str):
-            data = json.dumps(data)
-        self.logger.debug(f'收到{topic}的消息: {data}')
-        self.subscribe_render_sig.emit(data)
-
-    def validate_ip(self) -> bool:
-        ips = self.mqtt_config.ip.split('.')
-        if len(ips) != 4:
-            self.message('ip地址位数非法', _type='error')
-            return False
-        for ip in ips:
-            if ip != str(int(ip)):
-                self.message(f'ip段内容{ip}错误', _type='error')
-                return False
-            if 0 > int(ip) or int(ip) > 255:
-                self.message(f'ip段长度{ip}错误', _type='error')
-                return False
-        return True
-
-    def validate_mqtt_config(self) -> bool:
-        if not self.mqtt_config.ip:
-            self.message('mqtt的主机必须', _type='error')
-            return False
-        if not self.validate_ip():
-            return False
-        if not self.mqtt_config.port:
-            self.message('mqtt的端口必须', _type='error')
-            return False
-        if 0 > self.mqtt_config.port or self.mqtt_config.port > 65536:
-            self.message('mqtt的端口错误', _type='error')
-            return False
-        return True
-
-    def mqtt_subscribe(self):
-        if self.is_subscribe:
-            if self.subscribe_mqtt_client:
-                self.subscribe_mqtt_client.unsubscribe(self.current_subscribe)
-            self.is_subscribe = False
-            self.current_subscribe = ''
-            self.ui.subscribe_btn.setText('订阅')
-            self.ui.subscribe_btn.setStyleSheet('')
-            return
-        self.load_input_config()
-        if not self.validate_mqtt_config():
-            return
-        topic = self.ui.topic.currentText()
-        if not topic:
-            self.message('订阅的topic不能为空', _type='error')
-            return
-        self.clear_mqtt_client(self.subscribe_mqtt_client)
-        self.subscribe_mqtt_client = MQTT(self.mqtt_config)
-        self.subscribe_mqtt_client.subscribe(topic, self.receive_topic)
-        self.is_subscribe = True
-        self.current_subscribe = topic
-        self.ui.subscribe_btn.setText('取消订阅')
-        self.ui.subscribe_btn.setStyleSheet('color: red;')
-
-    def save_subscribe(self):
-        if not self.subscribe_text:
-            self.message('数据为空，无法保存', _type='warning')
-            return
-        file_name = QFileDialog.getSaveFileName(self, '保存MQTT数据', os.getcwd(),
-                                                "文本文件(*.txt)", options=QFileDialog.DontUseNativeDialog)
-        if not file_name[0]:
-            self.message('数据保存失败，重新选择', _type='warning')
-            return
-        with open(file_name[0] + '.txt', 'a+') as fp:
-            fp.writelines([str(text) + "\n\n" for text in self.subscribe_text])
-            self.message('文件保存成功')
-
-    def clear_subscribe_text(self):
-        self.subscribe_text = []
-        self.__set_subscribe_text()
-
-    def save_topic(self):
-        topic = self.ui.topic.currentText()
-        content = self.ui.publish_text.toPlainText()
-        self.topic_list[topic] = content
-        Configuration.save_config(pathlib.Path(CONFIG_DIR) / TOPIC_CONFIG_FILE, self.topic_list, Json)
-        self.set_topic_list()
-        self.ui.topic.setCurrentText(topic)
-        self.ui.publish_text.setPlainText(self.topic_list[topic])
-        self.message('topic保存成功', show_status=False)
-
-    def change_topic(self):
-        if self.ui.topic.currentIndex() == -1:
-            return
-        topic = self.ui.topic.currentText()
-        if self.topic_list.get(topic, None) is None:
-            return
-        self.ui.publish_text.setPlainText(self.topic_list[topic])
-
     def register_event(self):
         # 切换配置存储 or 加载
-        # FIXME: IDE提示代码重复了
         self.ui.config_switch.clicked.connect(self.switch_config)
         # 订阅 or 发布切换
         self.ui.mode_switch.clicked.connect(self.switch_mode)
         # 加载配置
-        self.ui.do_load_btn.clicked.connect(self.load_config)
+        self.ui.do_load_btn.clicked.connect(Topic.load_config(self))
         # 保存配置
-        self.ui.do_save_btn.clicked.connect(self.save_config)
+        self.ui.do_save_btn.clicked.connect(Topic.save_config(self))
         # topic保存
-        self.ui.topic_save_btn.clicked.connect(self.save_topic)
-        self.ui.topic.currentIndexChanged.connect(self.change_topic)
+        self.ui.topic_save_btn.clicked.connect(Topic.save_topic(self))
+        self.ui.topic.currentIndexChanged.connect(Topic.change_topic(self))
         # JSON
-        self.ui.json_format.clicked.connect(self.json_format)
-        self.ui.json_copy.clicked.connect(self.json_copy)
-        self.ui.json_compress.clicked.connect(self.json_compress)
+        self.ui.json_format.clicked.connect(DataFormat.json_format(self))
+        self.ui.json_copy.clicked.connect(DataFormat.json_copy(self))
+        self.ui.json_compress.clicked.connect(DataFormat.json_compress(self))
         # 订阅
-        self.ui.subscribe_btn.clicked.connect(self.mqtt_subscribe)
-        self.subscribe_render_sig.connect(self.render_subscribe_text)
-        self.ui.subscribe_save_btn.clicked.connect(self.save_subscribe)
-        self.ui.subscribe_clear_btn.clicked.connect(self.clear_subscribe_text)
+        self.ui.subscribe_btn.clicked.connect(Subscribe.mqtt_subscribe(self))
+        self.subscribe_render_sig.connect(Subscribe.render_subscribe_text(self))
+        self.ui.subscribe_save_btn.clicked.connect(Subscribe.save_subscribe(self))
+        self.ui.subscribe_clear_btn.clicked.connect(Subscribe.clear_subscribe_text(self))
         #  发布
         self.ui.publish_btn.clicked.connect(Publish.mqtt_publish(self))
         self.ui.persist_publish_btn.clicked.connect(Publish.persist_mqtt_publish(self))
 
     def set_style(self):
+        # TODO: 样式需要统一管理
         self.mode_switch_style = MultiCssModel()
         self.mode_switch_style.data['QPushButton'] = MultiCssModel.single_class()(
             tag_name='QPushButton',

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from typing import Union
 from uuid import uuid4
 from pydantic import BaseModel, Field
 
@@ -53,6 +54,33 @@ class MqttConfig(BaseModel):
             return False
         if self.password != other.password:
             return False
+        return True
+
+    def __str__(self):
+        if self.username:
+            return f'mqtt://{self.username}:{self.password}@{self.ip}:{self.port}'
+        return f'mqtt://{self.ip}:{self.port}'
+
+    def validate_ip(self) -> Union[bool, str]:
+        ips = self.ip.split('.')
+        if len(ips) != 4:
+            return 'ip地址位数非法'
+        for ip in ips:
+            if ip != str(int(ip)):
+                return f'ip段内容{ip}错误'
+            if 0 > int(ip) or int(ip) > 255:
+                return f'ip段长度{ip}错误'
+        return True
+
+    def validate_config(self) -> Union[bool, str]:
+        if not self.ip:
+            return 'mqtt的主机必须'
+        if isinstance(ip_validate := self.validate_ip(), str):
+            return ip_validate
+        if not self.port:
+            return 'mqtt的端口必须'
+        if 0 > self.port or self.port > 65536:
+            return 'mqtt的端口错误'
         return True
 
 

@@ -6,15 +6,19 @@ from pathlib import Path
 from typing import Union
 import time
 
+from utils.log_config import LogConfig
+
 
 class Log:
     log_levels = ['DEBUG', 'INFO', 'WARNING', 'ERROR']
     level = logging.INFO
 
-    def __init__(self, name='log', level: Union[str, int] = logging.INFO):
+    def __init__(self, name='log', log_config: Union[LogConfig, dict] = LogConfig()):
         # TODO: 归档时间
+        if isinstance(log_config, dict):
+            log_config = LogConfig(**log_config)
         self.__logger = logging.getLogger(name)
-        self.set_level(level)
+        self.set_level(log_config.level)
         if level := os.getenv('LOG_LEVEL', None):
             if isinstance(level, str) and level.upper() in self.log_levels:
                 self.set_level(level)

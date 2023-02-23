@@ -21,7 +21,7 @@ class MQTT:
         阻塞获取mqtt服务
         :param mqtt_config: mqtt服务配置
         """
-        self.logger = Log('mqtt', **LOG_CONFIG)
+        self.logger = Log('mqtt', LOG_CONFIG)
 
         if mqtt_config is None:
             mqtt_config = MqttConfig()
@@ -73,7 +73,7 @@ class MQTT:
 
     def __connected(self, _, __, ___, rc):
         if rc == 0:
-            self.logger.info('mqtt连接成功')
+            self.logger.info(f'mqtt连接成功，{self.mqtt_config.__str__()}')
             self.mqtt_config.is_connected = True
             self.mqtt_config.retries = 0
         else:
@@ -100,6 +100,14 @@ class MQTT:
         """
         self.client.loop_forever()
 
+    def disconnect(self):
+        """
+        断开连接
+        """
+        self.client.loop_stop()
+        self.client.disconnect()
+        self.logger.info(f'断开mqtt连接，{self.mqtt_config.__str__()}')
+
     def publish(self, topic: str, data):
         """
         发布topic
@@ -123,7 +131,7 @@ class MQTT:
             try:
                 data = eval(msg.payload.decode('utf-8'))
             except Exception as e:
-                self.logger.debug(e)
+                repr(e)
                 data = msg.payload.decode('utf-8')
             callback(data, msg.topic)
 
