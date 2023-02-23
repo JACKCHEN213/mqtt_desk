@@ -21,7 +21,6 @@ from core import (
     DataFormat,
     Topic
 )
-import data_rc
 
 
 class Base(QMainWindow):
