@@ -21,6 +21,7 @@ from core import (
     DataFormat,
     Topic
 )
+import data_rc
 
 
 class Base(QMainWindow):
@@ -52,7 +53,7 @@ class Base(QMainWindow):
             msg_box.setIconPixmap(QPixmap('images/warning_24x24.png'))
         else:
             style = 'color: #909399;background-color: #edf2fc;border-color: #ebeef5;'
-            msg_box.setIconPixmap(QPixmap('images/info_24x24.png'))
+            msg_box.setIconPixmap(QPixmap(':/images/info_24x24.png'))
         msg_box.setStyleSheet(style)
         msg_box.addButton('', QMessageBoxEx.AcceptRole)
         for btn in msg_box.buttons():
