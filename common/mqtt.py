@@ -15,6 +15,7 @@ from paho.mqtt.client import connack_string, MQTTMessage
 
 class MQTT:
     client_instance = None
+    error = None
 
     def __init__(self, mqtt_config: Union[Dict, MqttConfig, None] = None):
         """
@@ -29,12 +30,12 @@ class MQTT:
             mqtt_config = MqttConfig(**mqtt_config)
         self.mqtt_config = mqtt_config
 
-        self.__client = mqtt_client.Client(mqtt_config.client_id, reconnect_on_failure=False)
-        self.__client.on_connect = self.__connected
-        self.__reconnection()
+        self.client = mqtt_client.Client(mqtt_config.client_id, reconnect_on_failure=False)
+        self.client.on_connect = self.__connected
+        self.__connection()
 
         self.client_instance = self
-        self.__client.loop_start()
+        self.client.loop_start()
         self.__test_is_connect()
 
         self.subscribes = defaultdict(list)
@@ -47,43 +48,22 @@ class MQTT:
         self.publish('/mqtt/test', 'connected')
         self.mqtt_config.connection_time = int(time.time())
 
-    @property
-    def client(self):
-        while not self.mqtt_config.is_connected:
-            """
-            判断mqtt是否连接成功
-            """
-            if self.mqtt_config.max_retries <= self.mqtt_config.retries:
-                self.logger.error('MQTT连接失败')
-                raise Exception('MQTT连接失败')
-            time.sleep(0.5)
-        return self.__client
-
-    def __reconnection(self):
+    def __connection(self):
         """
         重新连接客户端
         :return:
         """
-        self.logger.debug(f'第{self.mqtt_config.retries + 1}次连接MQTT')
-        self.mqtt_config.retries += 1
-        self.mqtt_config.current_retries += 1
-
-        self.__client.username_pw_set(self.mqtt_config.username, self.mqtt_config.password)
-        self.__client.connect(self.mqtt_config.ip, self.mqtt_config.port)
+        self.client.username_pw_set(self.mqtt_config.username, self.mqtt_config.password)
+        self.client.connect(self.mqtt_config.ip, self.mqtt_config.port)
 
     def __connected(self, _, __, ___, rc):
         if rc == 0:
             self.logger.info(f'mqtt连接成功，{self.mqtt_config.__str__()}')
-            self.mqtt_config.is_connected = True
-            self.mqtt_config.retries = 0
+            self.error = None
         else:
             self.logger.warning(f'mqtt连接失败，错误原因：{connack_string(rc)}')
-            time.sleep(self.mqtt_config.retries_interval)
-            if self.mqtt_config.retries >= self.mqtt_config.max_retries:
-                self.logger.error('尝试连接MQTT超过最大连接数，mqtt连接失败')
-                raise Exception('尝试连接MQTT超过最大连接数，mqtt连接失败')
-            else:
-                self.__reconnection()
+            self.error = connack_string(rc)
+            raise Exception(self.error)
 
     @classmethod
     def get_instance(cls, config=None):

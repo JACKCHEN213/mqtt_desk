@@ -65,6 +65,9 @@ class Base(QMainWindow):
 
 
 class MqttDesk(Base):
+    """
+    FIXME: MQTT连接是异步的，连接很慢时会导致界面卡顿；怎么判断mqtt是否连接成功
+    """
     subscribe_render_sig: QObject = pyqtSignal(str)
 
     def __init__(self, app):
