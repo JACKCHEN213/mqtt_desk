@@ -29,7 +29,7 @@ class MQTT:
             mqtt_config = MqttConfig(**mqtt_config)
         self.mqtt_config = mqtt_config
 
-        self.__client = mqtt_client.Client(mqtt_config.client_id)
+        self.__client = mqtt_client.Client(mqtt_config.client_id, reconnect_on_failure=False)
         self.__client.on_connect = self.__connected
         self.__reconnection()
 
