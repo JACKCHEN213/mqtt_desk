@@ -117,6 +117,10 @@ class Ui_MainWindow(object):
         self.publish_text.setObjectName("publish_text")
         self.publish_btn = QtWidgets.QPushButton(self.publish)
         self.publish_btn.setGeometry(QtCore.QRect(0, 210, 91, 31))
+        self.publish_btn.setStyleSheet("QPushButton:pressed {\n"
+"    color: white;\n"
+"    background-color: brown;\n"
+"}")
         self.publish_btn.setObjectName("publish_btn")
         self.interval_text1 = QtWidgets.QLabel(self.publish)
         self.interval_text1.setGeometry(QtCore.QRect(100, 212, 31, 25))

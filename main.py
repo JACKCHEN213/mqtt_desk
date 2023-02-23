@@ -17,6 +17,7 @@ from model import MqttConfig, MultiCssModel
 from utils.qt_ex import QMessageBoxEx
 from utils.log import Log
 from common.mqtt import MQTT
+from core import PersistPublish, Publish
 
 
 class Base(QMainWindow):
@@ -67,13 +68,13 @@ class MqttDesk(Base):
 
         self.logger = Log('mqtt_desk')
         self.mqtt_config: MqttConfig = MqttConfig()
-        self.__mqtt_client: Union[MQTT, None] = None
+        self.subscribe_mqtt_client: Union[MQTT, None] = None
+        self.publish_mqtt_client: Union[MQTT, None] = None
         self.is_subscribe = False
         self.current_subscribe = ''
         self.subscribe_text = []
         self.is_publish = False
-        self.current_publish = ''
-        self.publish_text = '{}'
+        self.publish_thread: Union[PersistPublish, None] = None
 
         self.app = app
         self.ui = Ui_MainWindow()
@@ -97,9 +98,6 @@ class MqttDesk(Base):
         cursor.movePosition(QTextCursor.End)
         self.ui.subscribe_text.setTextCursor(cursor)
 
-    def __set_publish_text(self):
-        self.ui.publish_text.setPlainText(self.publish_text)
-
     def init(self):
         self.ui.config_box.setCurrentWidget(self.ui.load_config)
         self.ui.send_receive_box.setCurrentWidget(self.ui.publish)
@@ -110,7 +108,6 @@ class MqttDesk(Base):
         self.setFixedSize(756, 535)
         self.setWindowIcon(QIcon('images/favicon.png'))
         self.__set_subscribe_text()
-        self.__set_publish_text()
 
     def eventFilter(self, a0: QObject, a1: QEvent) -> bool:
         if a0 in [self.ui.topic, self.ui.config_list, self.ui.interval_unit]:
@@ -270,41 +267,12 @@ class MqttDesk(Base):
             self.logger.debug(e)
             self.message('不是一个有效的json文本', _type='error')
 
-    def __compare_config(self):
-        """
-        比较配置信息，如果相同，就将连接配置应用到当前配置中
-        """
-        if self.mqtt_config == self.__mqtt_client.mqtt_config:
-            self.mqtt_config = self.__mqtt_client.mqtt_config
-            self.set_mqtt_config()
-            return True
-        return False
-
-    @property
-    def mqtt_client(self) -> MQTT:
-        if self.__mqtt_client is None:
-            self.__mqtt_client = MQTT(self.mqtt_config)
-        if not self.__compare_config():
-            if self.is_subscribe:
-                self.__mqtt_client.unsubscribe(self.current_subscribe)
-            self.__mqtt_client.client.loop_stop()
-            self.__mqtt_client.client.disconnect()
-            del self.__mqtt_client
-            self.__mqtt_client = MQTT(self.mqtt_config)
-        return self.__mqtt_client
-
-    def clear_mqtt_client(self):
-        if self.__mqtt_client is None:
-            self.is_subscribe = False
-            self.current_subscribe = ''
+    @staticmethod
+    def clear_mqtt_client(mqtt_client: MQTT):
+        if not mqtt_client:
             return
-        self.mqtt_client.unsubscribe(self.current_subscribe)
-        self.__mqtt_client.client.loop_stop()
-        self.__mqtt_client.client.disconnect()
-        del self.__mqtt_client
-        self.__mqtt_client = None
-        self.is_subscribe = False
-        self.current_subscribe = ''
+        mqtt_client.client.loop_stop()
+        mqtt_client.client.disconnect()
 
     def render_subscribe_text(self, data: str):
         self.subscribe_text.append(data)
@@ -349,7 +317,10 @@ class MqttDesk(Base):
 
     def mqtt_subscribe(self):
         if self.is_subscribe:
-            self.clear_mqtt_client()
+            if self.subscribe_mqtt_client:
+                self.subscribe_mqtt_client.unsubscribe(self.current_subscribe)
+            self.is_subscribe = False
+            self.current_subscribe = ''
             self.ui.subscribe_btn.setText('订阅')
             self.ui.subscribe_btn.setStyleSheet('')
             return
@@ -360,7 +331,9 @@ class MqttDesk(Base):
         if not topic:
             self.message('订阅的topic不能为空', _type='error')
             return
-        self.mqtt_client.subscribe(topic, self.receive_topic)
+        self.clear_mqtt_client(self.subscribe_mqtt_client)
+        self.subscribe_mqtt_client = MQTT(self.mqtt_config)
+        self.subscribe_mqtt_client.subscribe(topic, self.receive_topic)
         self.is_subscribe = True
         self.current_subscribe = topic
         self.ui.subscribe_btn.setText('取消订阅')
@@ -370,7 +343,7 @@ class MqttDesk(Base):
         if not self.subscribe_text:
             self.message('数据为空，无法保存', _type='warning')
             return
-        file_name = QFileDialog.getSaveFileName(self, '保存监听文件', os.getcwd(),
+        file_name = QFileDialog.getSaveFileName(self, '保存MQTT数据', os.getcwd(),
                                                 "文本文件(*.txt)", options=QFileDialog.DontUseNativeDialog)
         if not file_name[0]:
             self.message('数据保存失败，重新选择', _type='warning')
@@ -401,24 +374,6 @@ class MqttDesk(Base):
             return
         self.ui.publish_text.setPlainText(self.topic_list[topic])
 
-    def mqtt_publish(self):
-        content = self.ui.publish_text.toPlainText()
-        if not content:
-            self.message('发布的消息内容不能为空', _type='error')
-            return
-        topic = self.ui.topic.currentText()
-        if not topic:
-            self.message('发布的消息主题不能为空', _type='error')
-            return
-        self.load_input_config()
-        if not self.validate_mqtt_config():
-            return
-        self.mqtt_client.publish(topic, content)
-
-    def persist_mqtt_publish(self):
-        # FIXME: 一边发布，一边订阅，复用同一个客户段会出问题
-        pass
-
     def register_event(self):
         # 切换配置存储 or 加载
         # FIXME: IDE提示代码重复了
@@ -442,8 +397,8 @@ class MqttDesk(Base):
         self.ui.subscribe_save_btn.clicked.connect(self.save_subscribe)
         self.ui.subscribe_clear_btn.clicked.connect(self.clear_subscribe_text)
         #  发布
-        self.ui.publish_btn.clicked.connect(self.mqtt_publish)
-        self.ui.persist_publish_btn.clicked.connect(self.persist_mqtt_publish)
+        self.ui.publish_btn.clicked.connect(Publish.mqtt_publish(self))
+        self.ui.persist_publish_btn.clicked.connect(Publish.persist_mqtt_publish(self))
 
     def set_style(self):
         self.mode_switch_style = MultiCssModel()

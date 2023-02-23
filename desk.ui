@@ -289,6 +289,12 @@ p, li { white-space: pre-wrap; }
         <height>31</height>
        </rect>
       </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton:pressed {
+    color: white;
+    background-color: brown;
+}</string>
+      </property>
       <property name="text">
        <string>发布</string>
       </property>
