@@ -9,7 +9,7 @@ from PyQt5.QtGui import QIcon, QPixmap, QTextCursor, QKeyEvent
 from desk import Ui_MainWindow
 from config.drive import Json
 from config.configuration import Configuration
-from config import CONFIG_DIR, DEFAULT_CONFIG_FILE, TOPIC_CONFIG_FILE, LOG_CONFIG
+from config import CONFIG_DIR, DEFAULT_CONFIG_FILE, TOPIC_CONFIG_FILE, LOG_CONFIG, VERSION
 from model import MqttConfig, MultiCssModel
 from utils.qt_ex import QMessageBoxEx
 from utils.log import Log
@@ -105,6 +105,11 @@ class MqttDesk(Base):
         self.setFixedSize(756, 535)
         self.setWindowIcon(QIcon(':/image/images/favicon.png'))
         self.set_subscribe_text()
+        self.set_status_bar()
+
+    def set_status_bar(self):
+        status_bar = self.statusBar()
+        status_bar.showMessage(f'版本: {VERSION}')
 
     def set_subscribe_text(self):
         all_text = ''
