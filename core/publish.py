@@ -54,7 +54,14 @@ class Publish:
             # 配置发生变化才重连
             if cls.obj.publish_mqtt_client:
                 cls.obj.publish_mqtt_client.disconnect()
-            cls.obj.publish_mqtt_client = MQTT(cls.obj.mqtt_config)
+                del cls.obj.publish_mqtt_client
+                cls.obj.publish_mqtt_client = None
+            try:
+                cls.obj.publish_mqtt_client = MQTT(cls.obj.mqtt_config)
+            except Exception as e:
+                cls.obj.logger.error(e)
+                cls.obj.message('mqtt连接失败', _type='error')
+                return False
         return True
 
     @classmethod

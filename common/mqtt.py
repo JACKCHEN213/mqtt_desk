@@ -11,11 +11,13 @@ import json
 import time
 from paho.mqtt import client as mqtt_client
 from paho.mqtt.client import connack_string, MQTTMessage
+from queue import Queue
+
 
 
 class MQTT:
     client_instance = None
-    error = None
+    mqtt_queue = Queue()
 
     def __init__(self, mqtt_config: Union[Dict, MqttConfig, None] = None):
         """
@@ -40,6 +42,10 @@ class MQTT:
 
         self.subscribes = defaultdict(list)
 
+        # NOTE: 阻塞获取连接结果
+        if isinstance(msg := self.mqtt_queue.get(), str):
+            raise Exception(msg)
+
     def __test_is_connect(self):
         """
         测试mqtt是否完成连接
@@ -59,11 +65,10 @@ class MQTT:
     def __connected(self, _, __, ___, rc):
         if rc == 0:
             self.logger.info(f'mqtt连接成功，{self.mqtt_config.__str__()}')
-            self.error = None
+            self.mqtt_queue.put(True)
         else:
             self.logger.warning(f'mqtt连接失败，错误原因：{connack_string(rc)}')
-            self.error = connack_string(rc)
-            raise Exception(self.error)
+            self.mqtt_queue.put(connack_string(rc))
 
     @classmethod
     def get_instance(cls, config=None):

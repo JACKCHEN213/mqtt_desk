@@ -45,7 +45,14 @@ class Subscribe:
             return
         if cls.obj.subscribe_mqtt_client:
             cls.obj.subscribe_mqtt_client.disconnect()
-        cls.obj.subscribe_mqtt_client = MQTT(cls.obj.mqtt_config)
+            del cls.obj.subscribe_mqtt_client
+            cls.obj.subscribe_mqtt_client = None
+        try:
+            cls.obj.subscribe_mqtt_client = MQTT(cls.obj.mqtt_config)
+        except Exception as e:
+            cls.obj.logger.error(e)
+            cls.obj.message('mqtt连接失败', _type='error')
+            return
         cls.obj.subscribe_mqtt_client.subscribe(topic, cls.__receive_topic)
         cls.obj.is_subscribe = True
         cls.obj.current_subscribe = topic
