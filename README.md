@@ -8,8 +8,8 @@ a Desk tool of MQTT, you can subscribe and publish
 
 ### subscribe
 
-![preview1](images/subscribe_prev1.png)
+![preview1](images/subscribe_prev2.png)
 
 ### publish
 
-![preview2](images/publish_prev1.png)
+![preview2](images/publish_prev2.png)

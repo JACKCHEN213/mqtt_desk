@@ -114,7 +114,11 @@ class Ui_MainWindow(object):
         self.subscribe = QtWidgets.QWidget()
         self.subscribe.setObjectName("subscribe")
         self.subscribe_text = QtWidgets.QTextBrowser(self.subscribe)
-        self.subscribe_text.setGeometry(QtCore.QRect(0, 0, 301, 201))
+        self.subscribe_text.setGeometry(QtCore.QRect(0, 0, 301, 198))
+        self.subscribe_text.setStyleSheet("QTextBrowser {\n"
+"   border: None;\n"
+"   border-bottom: 1px solid #999;\n"
+"}")
         self.subscribe_text.setObjectName("subscribe_text")
         self.subscribe_btn = QtWidgets.QPushButton(self.subscribe)
         self.subscribe_btn.setGeometry(QtCore.QRect(0, 200, 91, 31))
@@ -177,7 +181,11 @@ class Ui_MainWindow(object):
         self.persist_publish_btn.setGeometry(QtCore.QRect(210, 200, 91, 31))
         self.persist_publish_btn.setObjectName("persist_publish_btn")
         self.publish_text = QtWidgets.QTextEdit(self.publish)
-        self.publish_text.setGeometry(QtCore.QRect(0, 0, 301, 201))
+        self.publish_text.setGeometry(QtCore.QRect(0, 0, 301, 198))
+        self.publish_text.setStyleSheet("QTextEdit {\n"
+"   border: None;\n"
+"   border-bottom: 1px solid #999;\n"
+"}")
         self.publish_text.setObjectName("publish_text")
         self.subscribe_publish_tab.addTab(self.publish, "")
         MainWindow.setCentralWidget(self.centralwidget)

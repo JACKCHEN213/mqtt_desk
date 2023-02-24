@@ -319,8 +319,14 @@
         <x>0</x>
         <y>0</y>
         <width>301</width>
-        <height>201</height>
+        <height>198</height>
        </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QTextBrowser {
+   border: None;
+   border-bottom: 1px solid #999;
+}</string>
       </property>
       <property name="html">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -495,8 +501,14 @@ QLineEdit:focus {
         <x>0</x>
         <y>0</y>
         <width>301</width>
-        <height>201</height>
+        <height>198</height>
        </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QTextEdit {
+   border: None;
+   border-bottom: 1px solid #999;
+}</string>
       </property>
       <property name="html">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;

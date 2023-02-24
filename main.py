@@ -104,6 +104,7 @@ class MqttDesk(Base):
         self.ui.config_list.installEventFilter(self)
         self.ui.interval_unit.installEventFilter(self)
         self.ui.publish_interval.setAlignment(Qt.AlignRight)
+        self.ui.config_name.setText('127.0.0.1')
         self.setFixedSize(756, 535)
         self.setWindowIcon(QIcon(':/image/images/favicon.png'))
         self.set_subscribe_text()
