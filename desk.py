@@ -266,7 +266,7 @@ class Ui_MainWindow(object):
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>"))
         self.publish_btn.setText(_translate("MainWindow", "发布"))
         self.interval_text1.setText(_translate("MainWindow", "间隔"))
-        self.publish_interval.setText(_translate("MainWindow", "10"))
+        self.publish_interval.setText(_translate("MainWindow", "1"))
         self.persist_publish_btn.setText(_translate("MainWindow", "持续发布"))
         self.interval_unit.setItemText(0, _translate("MainWindow", "秒"))
         self.interval_unit.setItemText(1, _translate("MainWindow", "分"))

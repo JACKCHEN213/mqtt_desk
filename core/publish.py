@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from typing import Union
 from PyQt5.Qt import QThread, QObject
-from PyQt5.QtCore import Qt
 
 from common.mqtt import MQTT
 import time
@@ -102,7 +101,7 @@ class PersistPublish(BasePublish):
             self.obj.ui.publish_text.toPlainText(),
             interval,
             self.obj.logger,
-            True
+            False
                 )
 
     def run(self) -> None:
