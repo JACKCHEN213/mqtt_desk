@@ -47,7 +47,8 @@ class Topic:
     
     @classmethod
     def __save_config(cls):
-        cls.obj.load_input_config()
+        if not cls.obj.load_input_config():
+            return
         cls.obj.mqtt_config.config_name = cls.obj.ui.config_name.text()
         filepath = pathlib.Path(CONFIG_DIR + cls.obj.ui.config_name.text() + '.ini')
         Configuration.save_config(filepath, cls.obj.get_save_data())

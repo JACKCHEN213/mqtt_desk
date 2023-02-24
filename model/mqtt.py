@@ -79,4 +79,4 @@ class MqttConfig(BaseModel):
         return True
 
 
-__all__ = ['MqttConfig']
+__all__ = ['MqttConfig', 'generate_client_id']

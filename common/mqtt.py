@@ -2,7 +2,7 @@
 """
 MQTT服务
 """
-from model.mqtt import MqttConfig
+from model.mqtt import MqttConfig, generate_client_id
 from utils.log import Log
 from config import LOG_CONFIG
 from typing import Dict, Union
@@ -12,7 +12,6 @@ import time
 from paho.mqtt import client as mqtt_client
 from paho.mqtt.client import connack_string, MQTTMessage
 from queue import Queue
-
 
 
 class MQTT:
@@ -31,6 +30,7 @@ class MQTT:
         elif isinstance(mqtt_config, dict):
             mqtt_config = MqttConfig(**mqtt_config)
         self.mqtt_config = mqtt_config
+        self.mqtt_config.client_id = generate_client_id()
 
         self.client = mqtt_client.Client(mqtt_config.client_id, reconnect_on_failure=False)
         self.client.on_connect = self.__connected

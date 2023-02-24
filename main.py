@@ -69,6 +69,8 @@ class MqttDesk(Base):
     SOLUTION: 将MQTT的异步连接变为同步的，根据报错信息判断是否连接成功
     """
     subscribe_render_sig: QObject = pyqtSignal(str)
+    message_sig: QObject = pyqtSignal(str, str)
+    set_attr_sig: QObject = pyqtSignal(QObject, str, object)
 
     def __init__(self, app):
         super().__init__()
@@ -163,11 +165,17 @@ class MqttDesk(Base):
         self.ui.username.setText(self.mqtt_config.username.__str__())
         self.ui.password.setText(self.mqtt_config.password.__str__())
 
-    def load_input_config(self):
+    def load_input_config(self) -> bool:
         self.mqtt_config.ip = self.ui.ip.text()
-        self.mqtt_config.port = int(self.ui.port.text())
+        try:
+            self.mqtt_config.port = int(self.ui.port.text())
+        except Exception as e:
+            self.logger.debug(e)
+            self.message('端口类型为数字', _type='error')
+            return False
         self.mqtt_config.username = self.ui.username.text()
         self.mqtt_config.password = self.ui.password.text()
+        return True
 
     def set_topic_list(self):
         topic_file = pathlib.Path(CONFIG_DIR) / TOPIC_CONFIG_FILE
@@ -185,6 +193,16 @@ class MqttDesk(Base):
             self.ui.topic.addItem(topic)
         self.ui.topic.setCurrentText('default')
         self.ui.publish_text.setPlainText(self.topic_list['default'])
+
+    def __show_message(self, msg, _type):
+        self.message(msg=msg, _type=_type)
+
+    @staticmethod
+    def __set_attr(obj: QObject, func: str, value: object):
+        if value is None:
+            getattr(obj, func)()
+        else:
+            getattr(obj, func)(value)
 
     def switch_config(self):
         """
@@ -221,6 +239,9 @@ class MqttDesk(Base):
         self.ui.mode_switch_text.setText(text)
 
     def register_event(self):
+        # 自定义信号与槽
+        self.message_sig.connect(self.__show_message)
+        self.set_attr_sig.connect(self.__set_attr)
         # 切换配置存储 or 加载
         self.ui.config_switch.clicked.connect(self.switch_config)
         # 订阅 or 发布切换
