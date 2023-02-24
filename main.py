@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 import sys
-import time
 import pathlib
 from typing import Dict, Union
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QObject, QEvent
 from PyQt5.QtGui import QIcon, QPixmap, QTextCursor, QKeyEvent
-from desk import Ui_MainWindow
+from ui import MqttUi, MainUi
 from config.drive import Json
 from config.configuration import Configuration
 from config import CONFIG_DIR, DEFAULT_CONFIG_FILE, TOPIC_CONFIG_FILE, LOG_CONFIG, VERSION
-from model import MqttConfig, MultiCssModel
+from model import MqttConfig
 from utils.qt_ex import QMessageBoxEx
 from utils.log import Log
 from common import MQTT
@@ -86,8 +85,12 @@ class MqttDesk(Base):
         self.publish_thread: Union[PersistPublish, None] = None
 
         self.app = app
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
+        self.main_ui = MainUi()
+        self.main_ui.setupUi(self)
+        self.main_mqtt_ui = QMainWindow()
+        self.mqtt_ui = MqttUi()
+        self.mqtt_ui.setupUi(self.main_mqtt_ui)
+        self.main_mqtt_ui.setParent(self.main_ui.mqtt_tab)
         self.config_list: Dict[pathlib.Path, MqttConfig] = dict()
         self.topic_list: Dict[str, str] = {}
 
@@ -98,14 +101,15 @@ class MqttDesk(Base):
         self.register_event()
 
     def init(self):
-        self.ui.config_load_save.setCurrentWidget(self.ui.load_config)
-        self.ui.subscribe_publish_tab.setCurrentWidget(self.ui.subscribe)
-        self.ui.topic.installEventFilter(self)
-        self.ui.config_list.installEventFilter(self)
-        self.ui.interval_unit.installEventFilter(self)
-        self.ui.publish_interval.setAlignment(Qt.AlignRight)
-        self.ui.config_name.setText('127.0.0.1')
-        self.setFixedSize(756, 535)
+        self.main_ui.main_tab.setCurrentWidget(self.main_ui.mqtt_tab)
+        self.mqtt_ui.config_load_save.setCurrentWidget(self.mqtt_ui.load_config)
+        self.mqtt_ui.subscribe_publish_tab.setCurrentWidget(self.mqtt_ui.subscribe)
+        self.mqtt_ui.topic.installEventFilter(self)
+        self.mqtt_ui.config_list.installEventFilter(self)
+        self.mqtt_ui.interval_unit.installEventFilter(self)
+        self.mqtt_ui.publish_interval.setAlignment(Qt.AlignRight)
+        self.mqtt_ui.config_name.setText('127.0.0.1')
+        self.setFixedSize(756, 565)
         self.setWindowIcon(QIcon(':/image/images/favicon.png'))
         self.set_subscribe_text()
         self.set_status_bar()
@@ -118,14 +122,14 @@ class MqttDesk(Base):
         all_text = ''
         for index, text in enumerate(self.subscribe_text):
             all_text += "<span style='font-weight: bold;'>{:<5d}</span>{}<br />".format(index + 1, text)
-        self.ui.subscribe_text.setHtml(all_text)
+        self.mqtt_ui.subscribe_text.setHtml(all_text)
         # 自动滚动
-        cursor = self.ui.subscribe_text.textCursor()
+        cursor = self.mqtt_ui.subscribe_text.textCursor()
         cursor.movePosition(QTextCursor.End)
-        self.ui.subscribe_text.setTextCursor(cursor)
+        self.mqtt_ui.subscribe_text.setTextCursor(cursor)
 
     def eventFilter(self, a0: QObject, a1: QEvent) -> bool:
-        if a0 in [self.ui.topic, self.ui.config_list, self.ui.interval_unit]:
+        if a0 in [self.mqtt_ui.topic, self.mqtt_ui.config_list, self.mqtt_ui.interval_unit]:
             # 别给我<Enter>自己增加item
             if a1.type() == QEvent.KeyPress:
                 ke = QKeyEvent(a1)
@@ -151,31 +155,31 @@ class MqttDesk(Base):
             default_config = pathlib.Path(CONFIG_DIR + DEFAULT_CONFIG_FILE)
             Configuration.save_config(default_config, config=self.get_save_data())
             self.config_list[default_config] = self.mqtt_config
-        self.ui.config_list.clear()
+        self.mqtt_ui.config_list.clear()
         for file, config in self.config_list.items():
             if config.config_name == '默认配置':
                 self.mqtt_config = config
-            self.ui.config_list.addItem(config.config_name if config.config_name else file.stem)
+            self.mqtt_ui.config_list.addItem(config.config_name if config.config_name else file.stem)
         # 默认配置放在第一位
-        self.ui.config_list.setCurrentText('默认配置')
+        self.mqtt_ui.config_list.setCurrentText('默认配置')
         self.set_mqtt_config()
 
     def set_mqtt_config(self):
-        self.ui.ip.setText(self.mqtt_config.ip.__str__())
-        self.ui.port.setText(self.mqtt_config.port.__str__())
-        self.ui.username.setText(self.mqtt_config.username.__str__())
-        self.ui.password.setText(self.mqtt_config.password.__str__())
+        self.mqtt_ui.ip.setText(self.mqtt_config.ip.__str__())
+        self.mqtt_ui.port.setText(self.mqtt_config.port.__str__())
+        self.mqtt_ui.username.setText(self.mqtt_config.username.__str__())
+        self.mqtt_ui.password.setText(self.mqtt_config.password.__str__())
 
     def load_input_config(self) -> bool:
-        self.mqtt_config.ip = self.ui.ip.text()
+        self.mqtt_config.ip = self.mqtt_ui.ip.text()
         try:
-            self.mqtt_config.port = int(self.ui.port.text())
+            self.mqtt_config.port = int(self.mqtt_ui.port.text())
         except Exception as e:
             self.logger.debug(e)
             self.message('端口类型为数字', _type='error')
             return False
-        self.mqtt_config.username = self.ui.username.text()
-        self.mqtt_config.password = self.ui.password.text()
+        self.mqtt_config.username = self.mqtt_ui.username.text()
+        self.mqtt_config.password = self.mqtt_ui.password.text()
         return True
 
     def set_topic_list(self):
@@ -189,11 +193,11 @@ class MqttDesk(Base):
         if self.topic_list.get('default', None) is None:
             self.topic_list['default'] = 'default'
             Configuration.save_config(topic_file, self.topic_list, Json)
-        self.ui.topic.clear()
+        self.mqtt_ui.topic.clear()
         for topic in self.topic_list:
-            self.ui.topic.addItem(topic)
-        self.ui.topic.setCurrentText('default')
-        self.ui.publish_text.setPlainText(self.topic_list['default'])
+            self.mqtt_ui.topic.addItem(topic)
+        self.mqtt_ui.topic.setCurrentText('default')
+        self.mqtt_ui.publish_text.setPlainText(self.topic_list['default'])
 
     def __show_message(self, msg, _type):
         self.message(msg=msg, _type=_type)
@@ -210,24 +214,24 @@ class MqttDesk(Base):
         self.message_sig.connect(self.__show_message)
         self.set_attr_sig.connect(self.__set_attr)
         # 加载配置
-        self.ui.do_load_btn.clicked.connect(Topic.load_config(self))
+        self.mqtt_ui.do_load_btn.clicked.connect(Topic.load_config(self))
         # 保存配置
-        self.ui.do_save_btn.clicked.connect(Topic.save_config(self))
+        self.mqtt_ui.do_save_btn.clicked.connect(Topic.save_config(self))
         # topic保存
-        self.ui.topic_save_btn.clicked.connect(Topic.save_topic(self))
-        self.ui.topic.currentIndexChanged.connect(Topic.change_topic(self))
+        self.mqtt_ui.topic_save_btn.clicked.connect(Topic.save_topic(self))
+        self.mqtt_ui.topic.currentIndexChanged.connect(Topic.change_topic(self))
         # JSON
-        self.ui.json_format.clicked.connect(DataFormat.json_format(self))
-        self.ui.json_copy.clicked.connect(DataFormat.json_copy(self))
-        self.ui.json_compress.clicked.connect(DataFormat.json_compress(self))
+        self.mqtt_ui.json_format.clicked.connect(DataFormat.json_format(self))
+        self.mqtt_ui.json_copy.clicked.connect(DataFormat.json_copy(self))
+        self.mqtt_ui.json_compress.clicked.connect(DataFormat.json_compress(self))
         # 订阅
-        self.ui.subscribe_btn.clicked.connect(Subscribe.mqtt_subscribe(self))
+        self.mqtt_ui.subscribe_btn.clicked.connect(Subscribe.mqtt_subscribe(self))
         self.subscribe_render_sig.connect(Subscribe.render_subscribe_text(self))
-        self.ui.subscribe_save_btn.clicked.connect(Subscribe.save_subscribe(self))
-        self.ui.subscribe_clear_btn.clicked.connect(Subscribe.clear_subscribe_text(self))
+        self.mqtt_ui.subscribe_save_btn.clicked.connect(Subscribe.save_subscribe(self))
+        self.mqtt_ui.subscribe_clear_btn.clicked.connect(Subscribe.clear_subscribe_text(self))
         #  发布
-        self.ui.publish_btn.clicked.connect(Publish.mqtt_publish(self))
-        self.ui.persist_publish_btn.clicked.connect(Publish.persist_mqtt_publish(self))
+        self.mqtt_ui.publish_btn.clicked.connect(Publish.mqtt_publish(self))
+        self.mqtt_ui.persist_publish_btn.clicked.connect(Publish.persist_mqtt_publish(self))
 
     def set_style(self):
         pass

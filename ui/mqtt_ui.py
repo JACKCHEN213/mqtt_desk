@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'desk.ui'
+# Form implementation generated from reading ui file 'mqtt_ui.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #

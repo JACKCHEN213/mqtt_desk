@@ -15,13 +15,13 @@ class Topic:
     
     @classmethod
     def __save_topic(cls):
-        topic = cls.obj.ui.topic.currentText()
-        content = cls.obj.ui.publish_text.toPlainText()
+        topic = cls.obj.mqtt_ui.topic.currentText()
+        content = cls.obj.mqtt_ui.publish_text.toPlainText()
         cls.obj.topic_list[topic] = content
         Configuration.save_config(pathlib.Path(CONFIG_DIR) / TOPIC_CONFIG_FILE, cls.obj.topic_list, Json)
         cls.obj.set_topic_list()
-        cls.obj.ui.topic.setCurrentText(topic)
-        cls.obj.ui.publish_text.setPlainText(cls.obj.topic_list[topic])
+        cls.obj.mqtt_ui.topic.setCurrentText(topic)
+        cls.obj.mqtt_ui.publish_text.setPlainText(cls.obj.topic_list[topic])
         cls.obj.message('topic保存成功', show_status=False)
         cls.obj.logger.info(f'topic保存成功, {topic}')
         cls.obj.logger.debug(content)
@@ -33,12 +33,12 @@ class Topic:
     
     @classmethod
     def __change_topic(cls):
-        if cls.obj.ui.topic.currentIndex() == -1:
+        if cls.obj.mqtt_ui.topic.currentIndex() == -1:
             return
-        topic = cls.obj.ui.topic.currentText()
+        topic = cls.obj.mqtt_ui.topic.currentText()
         if cls.obj.topic_list.get(topic, None) is None:
             return
-        cls.obj.ui.publish_text.setPlainText(cls.obj.topic_list[topic])
+        cls.obj.mqtt_ui.publish_text.setPlainText(cls.obj.topic_list[topic])
     
     @classmethod
     def save_config(cls, obj):
@@ -49,8 +49,8 @@ class Topic:
     def __save_config(cls):
         if not cls.obj.load_input_config():
             return
-        cls.obj.mqtt_config.config_name = cls.obj.ui.config_name.text()
-        filepath = pathlib.Path(CONFIG_DIR + cls.obj.ui.config_name.text() + '.ini')
+        cls.obj.mqtt_config.config_name = cls.obj.mqtt_ui.config_name.text()
+        filepath = pathlib.Path(CONFIG_DIR + cls.obj.mqtt_ui.config_name.text() + '.ini')
         Configuration.save_config(filepath, cls.obj.get_save_data())
         cls.obj.message('配置保存成功')
         cls.obj.logger.info(f'配置保存成功, {filepath.__str__()}')
@@ -62,7 +62,7 @@ class Topic:
             if file != filepath:
                 continue
             cls.obj.mqtt_config = config
-            cls.obj.ui.config_list.setCurrentText(config.config_name)
+            cls.obj.mqtt_ui.config_list.setCurrentText(config.config_name)
             cls.obj.set_mqtt_config()
     
     @classmethod
@@ -73,12 +73,12 @@ class Topic:
     @classmethod
     def __load_config(cls):
         for file, config in cls.obj.config_list.items():
-            if config.config_name == cls.obj.ui.config_list.currentText():
+            if config.config_name == cls.obj.mqtt_ui.config_list.currentText():
                 cls.obj.mqtt_config = config
                 cls.obj.set_mqtt_config()
                 return
         for file, config in cls.obj.config_list.items():
-            if file.stem == cls.obj.ui.config_list.currentText():
+            if file.stem == cls.obj.mqtt_ui.config_list.currentText():
                 cls.obj.mqtt_config = config
                 cls.obj.set_mqtt_config()
                 return

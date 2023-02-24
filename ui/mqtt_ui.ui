@@ -524,7 +524,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QStatusBar" name="status_bar"/>
  </widget>
  <resources>
-  <include location="data.qrc"/>
+  <include location="../data.qrc"/>
  </resources>
  <connections/>
  <slots>

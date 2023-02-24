@@ -9,11 +9,11 @@ import json
 
 def enable_subscribe_btn(func):
     def wrapper(cls=None):
-        cls.obj.set_attr_sig.emit(cls.obj.ui.subscribe_btn, 'setEnabled', False)
-        cls.obj.set_attr_sig.emit(cls.obj.ui.subscribe_btn, 'setStyleSheet', '')
-        cls.obj.set_attr_sig.emit(cls.obj.ui.subscribe_btn, 'repaint', None)
+        cls.obj.set_attr_sig.emit(cls.obj.mqtt_ui.subscribe_btn, 'setEnabled', False)
+        cls.obj.set_attr_sig.emit(cls.obj.mqtt_ui.subscribe_btn, 'setStyleSheet', '')
+        cls.obj.set_attr_sig.emit(cls.obj.mqtt_ui.subscribe_btn, 'repaint', None)
         func(cls)
-        cls.obj.set_attr_sig.emit(cls.obj.ui.subscribe_btn, 'setEnabled', True)
+        cls.obj.set_attr_sig.emit(cls.obj.mqtt_ui.subscribe_btn, 'setEnabled', True)
     return wrapper
 
 
@@ -40,8 +40,8 @@ class SubscribeThread(QThread):
         self.obj.subscribe_mqtt_client.subscribe(self.topic, self.callback)
         self.obj.is_subscribe = True
         self.obj.current_subscribe = self.topic
-        self.obj.set_attr_sig.emit(self.obj.ui.subscribe_btn, 'setText', '取消订阅')
-        self.obj.set_attr_sig.emit(self.obj.ui.subscribe_btn, 'setStyleSheet', 'color: red')
+        self.obj.set_attr_sig.emit(self.obj.mqtt_ui.subscribe_btn, 'setText', '取消订阅')
+        self.obj.set_attr_sig.emit(self.obj.mqtt_ui.subscribe_btn, 'setStyleSheet', 'color: red')
 
     def run(self) -> None:
         self.__subscribe()
@@ -86,15 +86,15 @@ class Subscribe:
                 del cls.obj.subscribe_thread
             cls.obj.is_subscribe = False
             cls.obj.current_subscribe = ''
-            cls.obj.set_attr_sig.emit(cls.obj.ui.subscribe_btn, 'setText', '订阅')
-            cls.obj.set_attr_sig.emit(cls.obj.ui.subscribe_btn, 'setStyleSheet', '')
+            cls.obj.set_attr_sig.emit(cls.obj.mqtt_ui.subscribe_btn, 'setText', '订阅')
+            cls.obj.set_attr_sig.emit(cls.obj.mqtt_ui.subscribe_btn, 'setStyleSheet', '')
             return
         if not cls.obj.load_input_config():
             return
         if isinstance(error := cls.obj.mqtt_config.validate_config(), str):
             cls.obj.message_sig.emit(error, 'error')
             return
-        topic = cls.obj.ui.topic.currentText()
+        topic = cls.obj.mqtt_ui.topic.currentText()
         if not topic:
             cls.obj.message_sig.emit('订阅的topic不能为空', 'error')
             return
