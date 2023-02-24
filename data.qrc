@@ -5,8 +5,5 @@
     <file>images/success_24x24.png</file>
     <file>images/warning_24x24.png</file>
     <file>images/favicon.png</file>
-    <file>images/switch.png</file>
-    <file>images/mode_switch_brown_32x32.png</file>
-    <file>images/mode_switch_green_32x32.png</file>
   </qresource>
 </RCC>

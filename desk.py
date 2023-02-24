@@ -22,7 +22,7 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.mqtt_config_box = QtWidgets.QGroupBox(self.centralwidget)
-        self.mqtt_config_box.setGeometry(QtCore.QRect(30, 10, 701, 161))
+        self.mqtt_config_box.setGeometry(QtCore.QRect(30, 10, 301, 161))
         self.mqtt_config_box.setObjectName("mqtt_config_box")
         self.formLayoutWidget = QtWidgets.QWidget(self.mqtt_config_box)
         self.formLayoutWidget.setGeometry(QtCore.QRect(10, 29, 261, 120))
@@ -56,136 +56,6 @@ class Ui_MainWindow(object):
         self.password = QtWidgets.QLineEdit(self.formLayoutWidget)
         self.password.setObjectName("password")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.password)
-        self.config_save_load = QtWidgets.QGroupBox(self.mqtt_config_box)
-        self.config_save_load.setGeometry(QtCore.QRect(320, 30, 351, 121))
-        self.config_save_load.setObjectName("config_save_load")
-        self.config_box = QtWidgets.QStackedWidget(self.config_save_load)
-        self.config_box.setGeometry(QtCore.QRect(100, 40, 241, 61))
-        self.config_box.setStyleSheet("")
-        self.config_box.setObjectName("config_box")
-        self.load_config = QtWidgets.QWidget()
-        self.load_config.setStyleSheet("")
-        self.load_config.setObjectName("load_config")
-        self.config_list = QtWidgets.QComboBox(self.load_config)
-        self.config_list.setGeometry(QtCore.QRect(10, 20, 151, 25))
-        self.config_list.setEditable(True)
-        self.config_list.setObjectName("config_list")
-        self.do_load_btn = QtWidgets.QPushButton(self.load_config)
-        self.do_load_btn.setGeometry(QtCore.QRect(170, 20, 51, 25))
-        self.do_load_btn.setObjectName("do_load_btn")
-        self.config_box.addWidget(self.load_config)
-        self.save_config = QtWidgets.QWidget()
-        self.save_config.setStyleSheet("")
-        self.save_config.setObjectName("save_config")
-        self.do_save_btn = QtWidgets.QPushButton(self.save_config)
-        self.do_save_btn.setGeometry(QtCore.QRect(170, 20, 51, 25))
-        self.do_save_btn.setObjectName("do_save_btn")
-        self.config_name = QtWidgets.QLineEdit(self.save_config)
-        self.config_name.setGeometry(QtCore.QRect(10, 20, 151, 25))
-        self.config_name.setObjectName("config_name")
-        self.config_box.addWidget(self.save_config)
-        self.config_switch = QtWidgets.QPushButton(self.config_save_load)
-        self.config_switch.setGeometry(QtCore.QRect(30, 58, 30, 30))
-        self.config_switch.setStyleSheet("QPushButton {\n"
-"    border-radius : 15px;\n"
-"    background-color: #fff;\n"
-"    image: url(:/image/images/switch.png);\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #eee;\n"
-"}\n"
-"")
-        self.config_switch.setText("")
-        self.config_switch.setObjectName("config_switch")
-        self.config_swicth_load = QtWidgets.QLabel(self.config_save_load)
-        self.config_swicth_load.setGeometry(QtCore.QRect(30, 30, 31, 17))
-        self.config_swicth_load.setStyleSheet("color: rgb(115, 210, 22);")
-        self.config_swicth_load.setObjectName("config_swicth_load")
-        self.config_swicth_save = QtWidgets.QLabel(self.config_save_load)
-        self.config_swicth_save.setGeometry(QtCore.QRect(30, 94, 31, 17))
-        self.config_swicth_save.setObjectName("config_swicth_save")
-        self.send_receive_box = QtWidgets.QStackedWidget(self.centralwidget)
-        self.send_receive_box.setGeometry(QtCore.QRect(30, 270, 301, 241))
-        self.send_receive_box.setStyleSheet("")
-        self.send_receive_box.setObjectName("send_receive_box")
-        self.publish = QtWidgets.QWidget()
-        self.publish.setStyleSheet("")
-        self.publish.setObjectName("publish")
-        self.publish_text = QtWidgets.QTextEdit(self.publish)
-        self.publish_text.setGeometry(QtCore.QRect(0, 0, 301, 201))
-        self.publish_text.setObjectName("publish_text")
-        self.publish_btn = QtWidgets.QPushButton(self.publish)
-        self.publish_btn.setGeometry(QtCore.QRect(0, 210, 91, 31))
-        self.publish_btn.setStyleSheet("QPushButton:pressed {\n"
-"    color: white;\n"
-"    background-color: brown;\n"
-"}")
-        self.publish_btn.setObjectName("publish_btn")
-        self.interval_text1 = QtWidgets.QLabel(self.publish)
-        self.interval_text1.setGeometry(QtCore.QRect(100, 212, 31, 25))
-        self.interval_text1.setStyleSheet("color: brown;")
-        self.interval_text1.setObjectName("interval_text1")
-        self.publish_interval = QtWidgets.QLineEdit(self.publish)
-        self.publish_interval.setGeometry(QtCore.QRect(131, 212, 60, 25))
-        self.publish_interval.setStyleSheet("QLineEdit {\n"
-"   color: brown;\n"
-"   border: None;\n"
-"   text-align: right\n"
-"}\n"
-"\n"
-"QLineEdit:focus {\n"
-"   color: red;\n"
-"   border: 1px solid #999;\n"
-"   border-radius: 5px;\n"
-"}")
-        self.publish_interval.setObjectName("publish_interval")
-        self.persist_publish_btn = QtWidgets.QPushButton(self.publish)
-        self.persist_publish_btn.setGeometry(QtCore.QRect(210, 210, 91, 31))
-        self.persist_publish_btn.setObjectName("persist_publish_btn")
-        self.interval_unit = QtWidgets.QComboBox(self.publish)
-        self.interval_unit.setGeometry(QtCore.QRect(190, 212, 41, 25))
-        self.interval_unit.setStyleSheet("QComboBox::drop-down {\n"
-"  image: None;\n"
-"}\n"
-"\n"
-"QComboBox {\n"
-"  border-style: None;\n"
-"  color: brown;\n"
-"  background-color: rgba(0, 0, 0, 0);\n"
-"}\n"
-"\n"
-"QComboBox:hover {\n"
-"  color: green;\n"
-"  background-color: #ddd;\n"
-"}")
-        self.interval_unit.setObjectName("interval_unit")
-        self.interval_unit.addItem("")
-        self.interval_unit.addItem("")
-        self.interval_unit.addItem("")
-        self.interval_unit.raise_()
-        self.publish_text.raise_()
-        self.publish_btn.raise_()
-        self.interval_text1.raise_()
-        self.publish_interval.raise_()
-        self.persist_publish_btn.raise_()
-        self.send_receive_box.addWidget(self.publish)
-        self.subscribe = QtWidgets.QWidget()
-        self.subscribe.setStyleSheet("")
-        self.subscribe.setObjectName("subscribe")
-        self.subscribe_text = QtWidgets.QTextBrowser(self.subscribe)
-        self.subscribe_text.setGeometry(QtCore.QRect(0, 0, 301, 201))
-        self.subscribe_text.setObjectName("subscribe_text")
-        self.subscribe_btn = QtWidgets.QPushButton(self.subscribe)
-        self.subscribe_btn.setGeometry(QtCore.QRect(0, 210, 91, 31))
-        self.subscribe_btn.setObjectName("subscribe_btn")
-        self.subscribe_save_btn = QtWidgets.QPushButton(self.subscribe)
-        self.subscribe_save_btn.setGeometry(QtCore.QRect(107, 210, 91, 31))
-        self.subscribe_save_btn.setObjectName("subscribe_save_btn")
-        self.subscribe_clear_btn = QtWidgets.QPushButton(self.subscribe)
-        self.subscribe_clear_btn.setGeometry(QtCore.QRect(210, 210, 91, 31))
-        self.subscribe_clear_btn.setObjectName("subscribe_clear_btn")
-        self.send_receive_box.addWidget(self.subscribe)
         self.json_format_box = QtWidgets.QGroupBox(self.centralwidget)
         self.json_format_box.setGeometry(QtCore.QRect(360, 220, 371, 291))
         self.json_format_box.setObjectName("json_format_box")
@@ -215,34 +85,109 @@ class Ui_MainWindow(object):
         self.topic_save_btn = QtWidgets.QPushButton(self.topic_box)
         self.topic_save_btn.setGeometry(QtCore.QRect(240, 30, 51, 25))
         self.topic_save_btn.setObjectName("topic_save_btn")
-        self.mode_switch = QtWidgets.QPushButton(self.centralwidget)
-        self.mode_switch.setGeometry(QtCore.QRect(30, 242, 28, 28))
-        self.mode_switch.setStyleSheet("QPushButton {\n"
-"    border-radius : 14px;\n"
-"    background-color: #eee;\n"
-"    image: url(:/image/images/mode_switch_green_32x32.png);\n"
+        self.config_load_save = QtWidgets.QTabWidget(self.centralwidget)
+        self.config_load_save.setGeometry(QtCore.QRect(370, 30, 361, 141))
+        self.config_load_save.setWhatsThis("")
+        self.config_load_save.setObjectName("config_load_save")
+        self.load_config = QtWidgets.QWidget()
+        self.load_config.setObjectName("load_config")
+        self.config_list = QtWidgets.QComboBox(self.load_config)
+        self.config_list.setGeometry(QtCore.QRect(10, 20, 151, 25))
+        self.config_list.setEditable(True)
+        self.config_list.setObjectName("config_list")
+        self.do_load_btn = QtWidgets.QPushButton(self.load_config)
+        self.do_load_btn.setGeometry(QtCore.QRect(180, 20, 51, 25))
+        self.do_load_btn.setObjectName("do_load_btn")
+        self.config_load_save.addTab(self.load_config, "")
+        self.save_config = QtWidgets.QWidget()
+        self.save_config.setObjectName("save_config")
+        self.config_name = QtWidgets.QLineEdit(self.save_config)
+        self.config_name.setGeometry(QtCore.QRect(10, 20, 151, 25))
+        self.config_name.setObjectName("config_name")
+        self.do_save_btn = QtWidgets.QPushButton(self.save_config)
+        self.do_save_btn.setGeometry(QtCore.QRect(180, 20, 51, 25))
+        self.do_save_btn.setObjectName("do_save_btn")
+        self.config_load_save.addTab(self.save_config, "")
+        self.subscribe_publish_tab = QtWidgets.QTabWidget(self.centralwidget)
+        self.subscribe_publish_tab.setGeometry(QtCore.QRect(30, 250, 301, 261))
+        self.subscribe_publish_tab.setObjectName("subscribe_publish_tab")
+        self.subscribe = QtWidgets.QWidget()
+        self.subscribe.setObjectName("subscribe")
+        self.subscribe_text = QtWidgets.QTextBrowser(self.subscribe)
+        self.subscribe_text.setGeometry(QtCore.QRect(0, 0, 301, 201))
+        self.subscribe_text.setObjectName("subscribe_text")
+        self.subscribe_btn = QtWidgets.QPushButton(self.subscribe)
+        self.subscribe_btn.setGeometry(QtCore.QRect(0, 200, 91, 31))
+        self.subscribe_btn.setObjectName("subscribe_btn")
+        self.subscribe_save_btn = QtWidgets.QPushButton(self.subscribe)
+        self.subscribe_save_btn.setGeometry(QtCore.QRect(104, 200, 91, 31))
+        self.subscribe_save_btn.setObjectName("subscribe_save_btn")
+        self.subscribe_clear_btn = QtWidgets.QPushButton(self.subscribe)
+        self.subscribe_clear_btn.setGeometry(QtCore.QRect(210, 200, 91, 31))
+        self.subscribe_clear_btn.setObjectName("subscribe_clear_btn")
+        self.subscribe_publish_tab.addTab(self.subscribe, "")
+        self.publish = QtWidgets.QWidget()
+        self.publish.setObjectName("publish")
+        self.publish_btn = QtWidgets.QPushButton(self.publish)
+        self.publish_btn.setGeometry(QtCore.QRect(0, 200, 91, 31))
+        self.publish_btn.setStyleSheet("QPushButton:pressed {\n"
+"    color: white;\n"
+"    background-color: brown;\n"
+"}")
+        self.publish_btn.setObjectName("publish_btn")
+        self.interval_unit = QtWidgets.QComboBox(self.publish)
+        self.interval_unit.setGeometry(QtCore.QRect(170, 202, 41, 25))
+        self.interval_unit.setStyleSheet("QComboBox::drop-down {\n"
+"  image: None;\n"
 "}\n"
 "\n"
-"QPushButton:hover {\n"
-"    background-color: #ddd;\n"
+"QComboBox {\n"
+"  border-style: None;\n"
+"  color: brown;\n"
+"  background-color: rgba(0, 0, 0, 0);\n"
 "}\n"
-"")
-        self.mode_switch.setText("")
-        self.mode_switch.setObjectName("mode_switch")
-        self.mode_switch_text = QtWidgets.QLabel(self.centralwidget)
-        self.mode_switch_text.setGeometry(QtCore.QRect(70, 246, 67, 17))
-        self.mode_switch_text.setStyleSheet("QLabel {\n"
-"    color: green;\n"
+"\n"
+"QComboBox:hover {\n"
+"  color: green;\n"
+"  background-color: #ddd;\n"
 "}")
-        self.mode_switch_text.setObjectName("mode_switch_text")
+        self.interval_unit.setObjectName("interval_unit")
+        self.interval_unit.addItem("")
+        self.interval_unit.addItem("")
+        self.interval_unit.addItem("")
+        self.interval_text1 = QtWidgets.QLabel(self.publish)
+        self.interval_text1.setGeometry(QtCore.QRect(100, 202, 31, 25))
+        self.interval_text1.setStyleSheet("color: brown;")
+        self.interval_text1.setObjectName("interval_text1")
+        self.publish_interval = QtWidgets.QLineEdit(self.publish)
+        self.publish_interval.setGeometry(QtCore.QRect(130, 202, 41, 25))
+        self.publish_interval.setStyleSheet("QLineEdit {\n"
+"   color: brown;\n"
+"   border: None;\n"
+"   text-align: right\n"
+"}\n"
+"\n"
+"QLineEdit:focus {\n"
+"   color: red;\n"
+"   border: 1px solid #999;\n"
+"   border-radius: 5px;\n"
+"}")
+        self.publish_interval.setObjectName("publish_interval")
+        self.persist_publish_btn = QtWidgets.QPushButton(self.publish)
+        self.persist_publish_btn.setGeometry(QtCore.QRect(210, 200, 91, 31))
+        self.persist_publish_btn.setObjectName("persist_publish_btn")
+        self.publish_text = QtWidgets.QTextEdit(self.publish)
+        self.publish_text.setGeometry(QtCore.QRect(0, 0, 301, 201))
+        self.publish_text.setObjectName("publish_text")
+        self.subscribe_publish_tab.addTab(self.publish, "")
         MainWindow.setCentralWidget(self.centralwidget)
         self.status_bar = QtWidgets.QStatusBar(MainWindow)
         self.status_bar.setObjectName("status_bar")
         MainWindow.setStatusBar(self.status_bar)
 
         self.retranslateUi(MainWindow)
-        self.config_box.setCurrentIndex(0)
-        self.send_receive_box.setCurrentIndex(0)
+        self.config_load_save.setCurrentIndex(1)
+        self.subscribe_publish_tab.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -253,24 +198,19 @@ class Ui_MainWindow(object):
         self.lable3.setText(_translate("MainWindow", "MQTT端口："))
         self.lable4.setText(_translate("MainWindow", "登录用户："))
         self.lable2.setText(_translate("MainWindow", "登录密码："))
-        self.config_save_load.setTitle(_translate("MainWindow", "配置存储 && 加载"))
+        self.json_format_box.setTitle(_translate("MainWindow", "JSON数据验证 && 格式化"))
+        self.json_compress.setText(_translate("MainWindow", "压缩"))
+        self.json_copy.setText(_translate("MainWindow", "复制"))
+        self.json_format.setText(_translate("MainWindow", "格式化"))
+        self.topic_box.setTitle(_translate("MainWindow", "topic配置"))
+        self.topic_label.setText(_translate("MainWindow", "topic："))
+        self.topic_save_btn.setText(_translate("MainWindow", "保存"))
+        self.load_config.setToolTip(_translate("MainWindow", "加载"))
         self.do_load_btn.setText(_translate("MainWindow", "加载"))
-        self.do_save_btn.setText(_translate("MainWindow", "保存"))
+        self.config_load_save.setTabText(self.config_load_save.indexOf(self.load_config), _translate("MainWindow", "加载"))
         self.config_name.setToolTip(_translate("MainWindow", "<html><head/><body><p><br/></p></body></html>"))
-        self.config_swicth_load.setText(_translate("MainWindow", "加载"))
-        self.config_swicth_save.setText(_translate("MainWindow", "保存"))
-        self.publish_text.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Ubuntu\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>"))
-        self.publish_btn.setText(_translate("MainWindow", "发布"))
-        self.interval_text1.setText(_translate("MainWindow", "间隔"))
-        self.publish_interval.setText(_translate("MainWindow", "1"))
-        self.persist_publish_btn.setText(_translate("MainWindow", "持续发布"))
-        self.interval_unit.setItemText(0, _translate("MainWindow", "秒"))
-        self.interval_unit.setItemText(1, _translate("MainWindow", "分"))
-        self.interval_unit.setItemText(2, _translate("MainWindow", "时"))
+        self.do_save_btn.setText(_translate("MainWindow", "保存"))
+        self.config_load_save.setTabText(self.config_load_save.indexOf(self.save_config), _translate("MainWindow", "保存"))
         self.subscribe_text.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
@@ -279,12 +219,18 @@ class Ui_MainWindow(object):
         self.subscribe_btn.setText(_translate("MainWindow", "订阅"))
         self.subscribe_save_btn.setText(_translate("MainWindow", "保存到文件"))
         self.subscribe_clear_btn.setText(_translate("MainWindow", "清空"))
-        self.json_format_box.setTitle(_translate("MainWindow", "JSON数据验证 && 格式化"))
-        self.json_compress.setText(_translate("MainWindow", "压缩"))
-        self.json_copy.setText(_translate("MainWindow", "复制"))
-        self.json_format.setText(_translate("MainWindow", "格式化"))
-        self.topic_box.setTitle(_translate("MainWindow", "topic配置"))
-        self.topic_label.setText(_translate("MainWindow", "topic："))
-        self.topic_save_btn.setText(_translate("MainWindow", "保存"))
-        self.mode_switch_text.setText(_translate("MainWindow", "订阅模式"))
+        self.subscribe_publish_tab.setTabText(self.subscribe_publish_tab.indexOf(self.subscribe), _translate("MainWindow", "订阅"))
+        self.publish_btn.setText(_translate("MainWindow", "发布"))
+        self.interval_unit.setItemText(0, _translate("MainWindow", "秒"))
+        self.interval_unit.setItemText(1, _translate("MainWindow", "分"))
+        self.interval_unit.setItemText(2, _translate("MainWindow", "时"))
+        self.interval_text1.setText(_translate("MainWindow", "间隔"))
+        self.publish_interval.setText(_translate("MainWindow", "1"))
+        self.persist_publish_btn.setText(_translate("MainWindow", "持续发布"))
+        self.publish_text.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'Ubuntu\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>"))
+        self.subscribe_publish_tab.setTabText(self.subscribe_publish_tab.indexOf(self.publish), _translate("MainWindow", "发布"))
 import data_rc

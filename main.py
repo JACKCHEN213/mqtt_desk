@@ -98,8 +98,8 @@ class MqttDesk(Base):
         self.register_event()
 
     def init(self):
-        self.ui.config_box.setCurrentWidget(self.ui.load_config)
-        self.ui.send_receive_box.setCurrentWidget(self.ui.subscribe)
+        self.ui.config_load_save.setCurrentWidget(self.ui.load_config)
+        self.ui.subscribe_publish_tab.setCurrentWidget(self.ui.subscribe)
         self.ui.topic.installEventFilter(self)
         self.ui.config_list.installEventFilter(self)
         self.ui.interval_unit.installEventFilter(self)
@@ -204,48 +204,10 @@ class MqttDesk(Base):
         else:
             getattr(obj, func)(value)
 
-    def switch_config(self):
-        """
-        配置存储 or 加载切换
-        """
-        style_sheet = "color: rgb(115, 210, 22);"
-        if self.ui.config_box.currentWidget().objectName() == 'load_config':
-            self.ui.config_swicth_load.setStyleSheet('')
-            self.ui.config_swicth_save.setStyleSheet(style_sheet)
-            self.ui.config_box.setCurrentWidget(self.ui.save_config)
-            self.ui.config_name.setText(str(int(time.time())))
-        else:
-            self.ui.config_swicth_load.setStyleSheet(style_sheet)
-            self.ui.config_swicth_save.setStyleSheet('')
-            self.ui.config_box.setCurrentWidget(self.ui.load_config)
-
-    def switch_mode(self):
-        """
-        订阅 or 发布切换
-        """
-        color = 'green'
-        text = '订阅模式'
-        if self.ui.send_receive_box.currentWidget().objectName() == 'publish':
-            self.ui.send_receive_box.setCurrentWidget(self.ui.subscribe)
-        else:
-            self.ui.send_receive_box.setCurrentWidget(self.ui.publish)
-            color = 'brown'
-            text = '发布模式'
-        self.mode_switch_style.data['QPushButton'].attrs['image'] =\
-            f'url(:/image/images/mode_switch_{color}_32x32.png)'
-        self.ui.mode_switch.setStyleSheet(self.mode_switch_style.__str__())
-        self.mode_switch_text_style.data['QLabel'].attrs['color'] = color
-        self.ui.mode_switch_text.setStyleSheet(self.mode_switch_text_style.__str__())
-        self.ui.mode_switch_text.setText(text)
-
     def register_event(self):
         # 自定义信号与槽
         self.message_sig.connect(self.__show_message)
         self.set_attr_sig.connect(self.__set_attr)
-        # 切换配置存储 or 加载
-        self.ui.config_switch.clicked.connect(self.switch_config)
-        # 订阅 or 发布切换
-        self.ui.mode_switch.clicked.connect(self.switch_mode)
         # 加载配置
         self.ui.do_load_btn.clicked.connect(Topic.load_config(self))
         # 保存配置
@@ -267,23 +229,7 @@ class MqttDesk(Base):
         self.ui.persist_publish_btn.clicked.connect(Publish.persist_mqtt_publish(self))
 
     def set_style(self):
-        # TODO: 样式需要统一管理
-        self.mode_switch_style = MultiCssModel()
-        self.mode_switch_style.data['QPushButton'] = MultiCssModel.single_class()(
-            tag_name='QPushButton',
-            border_radius='14px',
-            background_color='#eee',
-            image='url(:/image/images/mode_switch_green_32x32.png)'
-        )
-        self.mode_switch_style.data['QPushButton:hover'] = MultiCssModel.single_class()(
-            tag_name='QPushButton:hover',
-            background_color='#ddd',
-        )
-        self.mode_switch_text_style = MultiCssModel()
-        self.mode_switch_text_style.data['QLabel'] = MultiCssModel.single_class()(
-            tag_name='QLabel',
-            color='green'
-        )
+        pass
 
     def run(self):
         self.show()
