@@ -1,9 +1,0 @@
-<RCC>
-  <qresource prefix="image">
-    <file>images/error_24x24.png</file>
-    <file>images/info_24x24.png</file>
-    <file>images/success_24x24.png</file>
-    <file>images/warning_24x24.png</file>
-    <file>images/favicon.png</file>
-  </qresource>
-</RCC>
