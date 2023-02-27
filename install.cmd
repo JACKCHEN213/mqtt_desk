@@ -1,2 +1,2 @@
-workon py3.qt && pyinstaller -w -i=images/favicon.ico -n=mqtt桌面工具 main.py
+workon py3.qt && pyinstaller mqtt桌面工具.spec
 pause

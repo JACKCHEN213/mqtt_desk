@@ -8,7 +8,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('res/*.ini', 'res/'), ('res/topics.json', 'res/')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -37,7 +37,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['images/favicon.ico'],
+    icon=['images\\favicon.ico'],
 )
 coll = COLLECT(
     exe,
