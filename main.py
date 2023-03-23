@@ -2,10 +2,10 @@
 import sys
 import pathlib
 from typing import Dict, Union
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QObject, QEvent
 from PyQt5.QtGui import QIcon, QPixmap, QTextCursor, QKeyEvent
-from ui import MqttUi, MainUi
+from ui import MqttUi, MainUi, RpcUi
 from config.drive import Json
 from config.configuration import Configuration
 from config import CONFIG_DIR, DEFAULT_CONFIG_FILE, TOPIC_CONFIG_FILE, LOG_CONFIG, VERSION
@@ -85,14 +85,21 @@ class MqttDesk(Base):
         self.publish_thread: Union[PersistPublish, None] = None
 
         self.app = app
+        # main ui
         self.main_ui = MainUi()
         self.main_ui.setupUi(self)
+        # mqtt ui
         self.main_mqtt_ui = QMainWindow()
         self.mqtt_ui = MqttUi()
         self.mqtt_ui.setupUi(self.main_mqtt_ui)
         self.main_mqtt_ui.setParent(self.main_ui.mqtt_tab)
         self.config_list: Dict[pathlib.Path, MqttConfig] = dict()
         self.topic_list: Dict[str, str] = {}
+        # rpc ui
+        self.main_rpc_ui = QWidget()
+        self.rpc_ui = RpcUi()
+        self.rpc_ui.setupUi(self.main_rpc_ui)
+        self.main_rpc_ui.setParent(self.main_ui.rpc_tab)
 
         self.init()
         self.set_style()
