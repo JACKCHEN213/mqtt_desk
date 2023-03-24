@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import Union
 from uuid import uuid4
-from pydantic import BaseModel, Field
+from dataclasses import dataclass, field
 
 
 def generate_client_id(prefix='python-mqtt-'):
@@ -13,20 +13,21 @@ def generate_client_id(prefix='python-mqtt-'):
     return prefix + uuid4().__str__()
 
 
-class MqttConfig(BaseModel):
+@dataclass
+class MqttConfig:
     """
     Mqtt配置
     """
-    ip: str = Field(default='127.0.0.1', description='mqtt的主机地址')
-    port: int = Field(default=1883, description='mqtt的主机端口')
-    username: str = Field(default='admin', description='mqtt服务的登录用户')
-    password: str = Field(default='password', description='mqtt服务的登录密码')
-    client_id: str = Field(default_factory=generate_client_id, description='mqtt客户端id')
+    ip: str = field(default='127.0.0.1')  # mqtt的主机地址
+    port: int = field(default=1883)  # mqtt的主机端口
+    username: str = field(default='admin')  # mqtt服务的登录用户
+    password: str = field(default='password')  # mqtt服务的登录密码
+    client_id: str = field(default_factory=generate_client_id)  # mqtt客户端id
 
-    config_name: str = Field(default='', description='mqtt配置文件名称')
-    config_file: str = Field(default='', description='mqtt配置文件路径')
+    config_name: str = field(default='')  # mqtt配置文件名称
+    config_file: str = field(default='')  # mqtt配置文件路径
 
-    connection_time: int = Field(default=0, description='连接时间')
+    connection_time: int = field(default=0)  # 连接时间
 
     def get_save_data(self):
         return {

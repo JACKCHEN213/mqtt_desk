@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-s
-from pydantic import BaseModel, Field
-from typing import List, Dict
+from dataclasses import dataclass
 
 
-class CssModel(BaseModel):
+@dataclass
+class CssModel:
     """
     FIXME: 赋值方式很蠢
     css属性的中杠线'-'统一使用下划线'_'
     """
-    tag_name: str = Field(..., description='css的标签名')
-    attrs: Dict[str, str] = Field(default=[], description='css属性列表')
+    tag_name: str = ''  # css的标签名
+    attrs = []  # css属性列表
 
     def __init__(self, tag_name, **kwargs):
-        super().__init__(tag_name=tag_name, attrs=dict(), **kwargs)
+        self.tag_name = tag_name
         self.attrs = dict()  # css属性列表
         for field, value in kwargs.items():
             if self.attrs.get(field, None) is None:
@@ -25,6 +25,12 @@ class CssModel(BaseModel):
         ret_str += "}"
         return ret_str
 
+    def dict(self):
+        return {
+            'tag_name': self.tag_name,
+            'attrs': self.attrs,
+        }
+
     class Config:
         title = 'css样例测试'
         schema_extra = {'examples': {
@@ -34,8 +40,9 @@ class CssModel(BaseModel):
         }}
 
 
-class MultiCssModel(BaseModel):
-    data: Dict[str, CssModel] = Field(default=dict(), description='css列表')
+@dataclass
+class MultiCssModel:
+    data = dict()  # css列表
 
     def __str__(self):
         if not self.data:
@@ -45,6 +52,11 @@ class MultiCssModel(BaseModel):
     @staticmethod
     def single_class():
         return CssModel
+
+    def dict(self):
+        return {
+            'data': self.data,
+        }
 
     class Config:
         title = 'css样例测试'

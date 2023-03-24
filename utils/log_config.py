@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import logging
 from typing import Union
-from pydantic import BaseModel, Field
+from dataclasses import dataclass, field
 
 
-class LogConfig(BaseModel):
-    level: Union[str, int] = Field(default=logging.INFO, description='日志级别')
+@dataclass
+class LogConfig:
+    level: Union[str, int] = field(default=logging.INFO)  # '日志级别'
