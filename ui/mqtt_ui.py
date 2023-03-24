@@ -127,7 +127,7 @@ class Ui_MainWindow(object):
         self.subscribe_save_btn.setGeometry(QtCore.QRect(104, 200, 91, 31))
         self.subscribe_save_btn.setObjectName("subscribe_save_btn")
         self.subscribe_clear_btn = QtWidgets.QPushButton(self.subscribe)
-        self.subscribe_clear_btn.setGeometry(QtCore.QRect(210, 200, 91, 31))
+        self.subscribe_clear_btn.setGeometry(QtCore.QRect(210, 200, 81, 31))
         self.subscribe_clear_btn.setObjectName("subscribe_clear_btn")
         self.subscribe_publish_tab.addTab(self.subscribe, "")
         self.publish = QtWidgets.QWidget()
@@ -178,7 +178,7 @@ class Ui_MainWindow(object):
 "}")
         self.publish_interval.setObjectName("publish_interval")
         self.persist_publish_btn = QtWidgets.QPushButton(self.publish)
-        self.persist_publish_btn.setGeometry(QtCore.QRect(210, 200, 91, 31))
+        self.persist_publish_btn.setGeometry(QtCore.QRect(210, 200, 81, 31))
         self.persist_publish_btn.setObjectName("persist_publish_btn")
         self.publish_text = QtWidgets.QTextEdit(self.publish)
         self.publish_text.setGeometry(QtCore.QRect(0, 0, 301, 198))
@@ -194,8 +194,8 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.status_bar)
 
         self.retranslateUi(MainWindow)
-        self.config_load_save.setCurrentIndex(1)
-        self.subscribe_publish_tab.setCurrentIndex(1)
+        self.config_load_save.setCurrentIndex(0)
+        self.subscribe_publish_tab.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
